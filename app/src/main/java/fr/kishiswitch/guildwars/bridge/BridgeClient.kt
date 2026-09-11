@@ -1,5 +1,6 @@
 package fr.kishiswitch.guildwars.bridge
 
+import fr.kishiswitch.guildwars.R
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
@@ -26,8 +27,8 @@ class BridgeClient(private val context: Context) {
     private val generation = AtomicInteger()
     private val queued = AtomicInteger()
     @Volatile private var remote: IInputBridge? = null
-    var state = "Shizuku à démarrer"
-        private set
+    private var stateRes = R.string.shizuku_start
+    val state: String get() = context.getString(stateRes)
     var onFailure: (() -> Unit)? = null
     val ready: Boolean get() = remote != null
     private var binding = false
@@ -46,19 +47,19 @@ class BridgeClient(private val context: Context) {
                 main.post {
                     binding = false
                     if (success) {
-                        remote = peer; state = "Shizuku connecté"
-                        runCatching { binder?.linkToDeath({ main.post { lost("Connexion Shizuku interrompue") } }, 0) }
-                    } else state = "Injection indisponible : ouvrez le diagnostic"
+                        remote = peer; stateRes = R.string.shizuku_connected
+                        runCatching { binder?.linkToDeath({ main.post { lost(R.string.shizuku_connection_lost) } }, 0) }
+                    } else stateRes = R.string.injection_unavailable
                     RuntimeState.record(state); RuntimeState.changed()
                 }
             }
         }
-        override fun onServiceDisconnected(name: ComponentName?) { lost("Shizuku à relancer") }
+        override fun onServiceDisconnected(name: ComponentName?) { lost(R.string.shizuku_restart) }
     }
 
     init {
         Shizuku.addBinderReceivedListenerSticky { main.post { connect(false) } }
-        Shizuku.addBinderDeadListener { main.post { lost("Shizuku à relancer") } }
+        Shizuku.addBinderDeadListener { main.post { lost(R.string.shizuku_restart) } }
         Shizuku.addRequestPermissionResultListener { _, result ->
             if (result == PackageManager.PERMISSION_GRANTED) main.post { connect(false) }
         }
@@ -67,26 +68,26 @@ class BridgeClient(private val context: Context) {
     fun connect(requestPermission: Boolean) {
         if (ready || binding) return
         try {
-            if (!Shizuku.pingBinder()) { state = "Shizuku à démarrer"; RuntimeState.changed(); return }
-            if (Shizuku.getVersion() < 13) { state = "Mettez Shizuku à jour (version 13 ou supérieure)"; RuntimeState.changed(); return }
+            if (!Shizuku.pingBinder()) { stateRes = R.string.shizuku_start; RuntimeState.changed(); return }
+            if (Shizuku.getVersion() < 13) { stateRes = R.string.shizuku_update; RuntimeState.changed(); return }
             if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-                state = "Autorisation Shizuku requise"
+                stateRes = R.string.shizuku_permission
                 if (requestPermission) Shizuku.requestPermission(41)
             } else {
-                binding = true; state = "Connexion à Shizuku…"
+                binding = true; stateRes = R.string.shizuku_connecting
                 Shizuku.bindUserService(args, connection)
                 main.postDelayed({
-                    if (binding) { binding = false; state = "Connexion impossible : relancez Shizuku"; RuntimeState.changed() }
+                    if (binding) { binding = false; stateRes = R.string.shizuku_connect_failed; RuntimeState.changed() }
                 }, 8000)
             }
-        } catch (e: RuntimeException) { binding = false; state = "Shizuku indisponible"; RuntimeState.record("Connexion : ${e.javaClass.simpleName}") }
+        } catch (e: RuntimeException) { binding = false; stateRes = R.string.shizuku_unavailable; RuntimeState.record(context.getString(R.string.connection_error_log, e.javaClass.simpleName)) }
         RuntimeState.changed()
     }
 
     /** Serial queue shared by key and motion events. Never perform binder calls in onKeyEvent. */
     fun send(event: InputEvent, targetUid: Int, critical: Boolean = true, callback: ((Boolean) -> Unit)? = null): Boolean {
         val peer = remote ?: return false
-        if (queued.get() >= 128) { main.post { lost("Flux interrompu : délai excessif") }; return false }
+        if (queued.get() >= 128) { main.post { lost(R.string.stream_timeout) }; return false }
         val copy: InputEvent = when (event) {
             is KeyEvent -> KeyEvent(event)
             is MotionEvent -> MotionEvent.obtain(event)
@@ -106,13 +107,13 @@ class BridgeClient(private val context: Context) {
                 }
                 val success = result.getOrDefault(false)
                 val detail = if (success) "" else result.exceptionOrNull()?.let { "${it.javaClass.simpleName}: ${it.message?.take(180)}" }
-                    ?: runCatching { peer.lastError }.getOrDefault("Erreur de transport sans détail")
+                    ?: runCatching { peer.lastError }.getOrDefault(context.getString(R.string.transport_error_unknown))
                 main.post {
                     if (generation.get() == epoch) {
                         callback?.invoke(success)
                         if (!success && critical) {
-                            RuntimeState.record("Échec d’injection : $detail")
-                            lost("Transmission interrompue · interception arrêtée")
+                            RuntimeState.record(context.getString(R.string.injection_failed, detail))
+                            lost(R.string.transmission_interrupted)
                         }
                     }
                 }
@@ -135,7 +136,7 @@ class BridgeClient(private val context: Context) {
                 check(peer.startRelay(configuration.toString(),lifetime,targetUid))
                 pollRelay(peer,epoch)
             } catch(e:Exception) {
-                main.post { if(epoch==relayEpoch.get())onRelayStatus?.invoke(JSONObject().put("state","failed").put("error",e.message ?: "Connexion interrompue")) }
+                main.post { if(epoch==relayEpoch.get())onRelayStatus?.invoke(JSONObject().put("state","failed").put("error",e.message ?: context.getString(R.string.connection_interrupted))) }
             }
         }
     }
@@ -144,7 +145,7 @@ class BridgeClient(private val context: Context) {
         if(epoch!=relayEpoch.get())return
         val result=runCatching { peer.updateRelay(relayOptions.skills,relayOptions.rightVertical,relayDraining) }
         val json=result.getOrNull()?.let { runCatching { JSONObject(it) }.getOrNull() }
-            ?: JSONObject().put("state","failed").put("error","Connexion de transmission interrompue")
+            ?: JSONObject().put("state","failed").put("error",context.getString(R.string.relay_connection_lost))
         main.post { if(epoch==relayEpoch.get())onRelayStatus?.invoke(json) }
         if(json.optString("state") in setOf("starting","active"))worker.postDelayed({pollRelay(peer,epoch)},250)
     }
@@ -154,16 +155,16 @@ class BridgeClient(private val context: Context) {
         worker.post {
             runCatching { peer.stopRelay() }.getOrNull()?.let { status ->
                 val json=runCatching { JSONObject(status) }.getOrNull()
-                if(json!=null)RuntimeState.record("Relais arrêté : ${json.optLong("frames")} trames, ${json.optLong("keys")} changements de boutons")
+                if(json!=null)RuntimeState.record(context.getString(R.string.relay_stopped_log, json.optLong("frames"), json.optLong("keys")))
             }
         }
     }
 
-    private fun lost(reason: String) {
+    private fun lost(reason: Int) {
         val wasReady = ready || binding
         stopRelay()
-        remote = null; binding = false; cancelPending(); state = reason
-        if (wasReady) { RuntimeState.record(reason); onFailure?.invoke() }
+        remote = null; binding = false; cancelPending(); stateRes = reason
+        if (wasReady) { RuntimeState.record(context.getString(reason)); onFailure?.invoke() }
         RuntimeState.changed()
     }
 }

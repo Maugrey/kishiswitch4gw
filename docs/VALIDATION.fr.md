@@ -1,6 +1,19 @@
-# Compte rendu — version 0.1.4
+# Compte rendu — version 0.1.5
 
 [English](VALIDATION.md) | Français
+
+## Livraison 0.1.5 — interface en français et en anglais
+
+- Écran principal, configuration, diagnostic, consignes d'essai, overlay, description d'accessibilité et erreurs propres au relais disponibles en anglais et en français. Les deux jeux de ressources contiennent les mêmes 192 entrées, avec l'anglais par défaut.
+- Le choix de langue Android est accessible depuis l'écran principal. Le relais Shizuku reçoit la langue des ressources sélectionnée pour ses messages d'erreur. Le changement de langue conserve le profil matériel, les préférences d'inversion et l'identifiant de validation.
+- THIRD_PARTY_NOTICES.md comprend une section anglaise et une section française complètes. Les textes officiels des licences et les lignes Required Notice sont inchangés ; l'APK embarque le document mis à jour.
+- Tests Android instrumentés : 12 réussis sur émulateur Android 16, dont quatre tests de localisation couvrant la sélection et le repli de langue, le formatage, la langue des erreurs du relais et la conservation des réglages et identifiants de validation.
+- Contrôles visuels de l'APK signé : écran principal, diagnostic et compte rendu dans les deux langues ; menu des licences anglais et document tiers bilingue ; passage de l'anglais au français par les paramètres Android avec conservation de l'état des deux interrupteurs ; textes de l'overlay dans les deux langues au-dessus d'une application locale de test. Cette application de test n'est pas Guild Wars et ces contrôles ne valident pas la transmission de la manette.
+- Le moteur de remappage, le format des rapports HID, les seuils et les clés de préférences sont inchangés. La gestion de langue a été ajoutée au service d'accessibilité et au contexte des messages du relais.
+
+Contrôles de livraison : compilation signée réussie, même certificat, neuf documents légaux embarqués comparés aux fichiers du dépôt, liens locaux valides, Android Lint sans erreur et avec cinq avertissements. Gradle a réutilisé les résultats des 17 tests du moteur réussis, car le moteur est inchangé. La recherche ciblée finale n'a détecté aucun e-mail personnel, nom de compte local, clé privée ou jeton GitHub dans l'APK et les documents ; les métadonnées Git restent exclues de l'APK.
+
+Aucun nouvel essai sur le OnePlus ni de commandes en jeu pour cette mise à jour de traduction. Le fonctionnement confirmé par l'utilisateur concerne toujours la 0.1.2.
 
 ## Livraison 0.1.4 — documents en anglais et en français
 

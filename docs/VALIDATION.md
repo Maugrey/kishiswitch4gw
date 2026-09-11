@@ -1,6 +1,19 @@
-# Validation report — version 0.1.4
+# Validation report — version 0.1.5
 
 English | [Français](VALIDATION.fr.md)
+
+## Version 0.1.5 — English and French app interface
+
+- Main screen, setup, diagnostics, trial instructions, floating controls, accessibility description and app-defined relay errors are available in English and French. Both resource sets contain the same 192 entries, with English as the default.
+- Android's per-app language settings are accessible from the main screen. The Shizuku relay receives the selected resource language for its error messages. Language changes do not alter the hardware profile, inversion preferences or validation stamp.
+- THIRD_PARTY_NOTICES.md contains complete English and French sections. Official license texts and Required Notice lines are unchanged; the APK includes the updated document.
+- Android instrumentation: 12 tests passed on an Android 16 emulator, including four localization tests for language selection and fallback, formatting, relay error language and preservation of settings/validation stamps.
+- Visual checks on the signed APK: main screen, diagnostic screen and report in both languages; the English license menu and bilingual third-party document; changing from English to French through Android settings while retaining the two switch states; overlay labels in both languages over a local test fixture. The fixture is not Guild Wars and these checks do not validate controller transmission.
+- The remapping engine, HID report format, trigger thresholds and stored preference keys are unchanged. Language handling was added to the accessibility service and relay message context.
+
+Release checks: signed build successful, same signing certificate, all nine legal assets matched to the repository, local documentation links valid, Android Lint with no errors and five warnings. Gradle reused the 17 successful engine test results because the engine is unchanged. The final targeted scan found no personal email, local username, private key or GitHub token in the APK and documents; Git metadata remains excluded from the APK.
+
+No OnePlus or in-game controller test was performed for this localization update. User-confirmed gameplay still refers to 0.1.2.
 
 ## Version 0.1.4 — English and French distribution documents
 

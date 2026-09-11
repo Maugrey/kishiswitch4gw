@@ -4,13 +4,13 @@
 
 Application personnelle pour Android 16, écrite en Kotlin et Android Views. Elle utilise Shizuku, installé séparément, sans root ni remplacement du clavier.
 
-**Version 0.1.4 : documentation en anglais et en français, explications des attributions bilingues dans l'APK.** L'interface de l'application reste en français. Le fonctionnement de la manette est celui de la 0.1.2 ; la licence PolyForm Noncommercial et les attributions sont consultables dans l'application depuis la 0.1.3.
+**Version 0.1.5 : interface en français et en anglais**, y compris la configuration, le diagnostic, l'overlay et les erreurs du relais. L'application suit la langue du téléphone, avec l'anglais comme langue de repli. Le bouton **Langue de l'application** ouvre le choix français/anglais dans les paramètres Android. La documentation et les mentions des composants tiers sont également disponibles dans les deux langues.
 
 **Version 0.1.2 : transmission et deux inversions confirmées par l’utilisateur dans Guild Wars sur le OnePlus.** La réinjection Android de la 0.1.1 a été remplacée par un relais EVIOCGRAB/UHID via Shizuku sans root. Après les essais de l’application intégrée, l’utilisateur a confirmé : « C’est bon, tout fonctionne ! » Les essais guidés restent requis sur une nouvelle installation ou après un changement de configuration. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md) et le [compte rendu actuel](docs/VALIDATION.md).
 
 ## Installation et utilisation
 
-Télécharger l’APK signé dans les [releases](https://github.com/Maugrey/kishiswitch4gw/releases). La version 0.1.4 est une préversion.
+Télécharger l’APK signé dans les [releases](https://github.com/Maugrey/kishiswitch4gw/releases). La version 0.1.5 est une préversion.
 
 Voir la [notice française](docs/NOTICE.fr.md), puis le [compte rendu et les essais restants](docs/VALIDATION.fr.md).
 

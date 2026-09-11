@@ -1,5 +1,7 @@
 package fr.kishiswitch.guildwars.input
 
+import fr.kishiswitch.guildwars.R
+import android.content.res.Configuration
 import android.accessibilityservice.AccessibilityService
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
@@ -40,28 +42,42 @@ class RemapService:AccessibilityService(),InputManager.InputDeviceListener {
     private var relayError=""
     private var trialSeenGame=false
     private var seenTrialExpiry=0L
+    private var currentLanguage=""
     private val listener:()->Unit={main.post{refresh()}}
     private val preferences=SharedPreferences.OnSharedPreferenceChangeListener { _,_->main.post{refresh()} }
-    private val timeout=Runnable{stopRelay();RuntimeState.endTrial();refresh()}
+    private val timeout=Runnable{stopRelay();RuntimeState.endTrial(this@RemapService);refresh()}
     private val screen=object:BroadcastReceiver(){override fun onReceive(c:Context?,i:Intent?){stopRelay();refresh()}}
 
     override fun onServiceConnected() {
+        currentLanguage=getString(R.string.resource_language)
         val info=serviceInfo
         InterceptionConfig.apply(info,false,false)
         serviceInfo=info
         RuntimeState.capturingMotion=false;RuntimeState.filteringKeys=false
         floating=FloatingControls(this,settings)
         RuntimeState.serviceConnected=true
-        RuntimeState.stopService={stopRelay();RuntimeState.endTrial();floating.hide();disableSelf()}
+        RuntimeState.stopService={stopRelay();RuntimeState.endTrial(this@RemapService);floating.hide();disableSelf()}
         settings.prefs.registerOnSharedPreferenceChangeListener(preferences)
         RuntimeState.listen(listener)
         getSystemService(InputManager::class.java).registerInputDeviceListener(this,main)
         registerReceiver(screen,IntentFilter().apply {addAction(Intent.ACTION_SCREEN_OFF);addAction(Intent.ACTION_USER_PRESENT)},Context.RECEIVER_NOT_EXPORTED)
-        bridge.onFailure={stopRelay();RuntimeState.trialFailed=true;RuntimeState.endTrial();refresh()}
+        bridge.onFailure={stopRelay();RuntimeState.trialFailed=true;RuntimeState.endTrial(this@RemapService);refresh()}
         bridge.onRelayStatus={status->onRelayStatus(status)}
         bridge.connect(false);refresh();RuntimeState.changed()
     }
     override fun onAccessibilityEvent(event:AccessibilityEvent?){refresh()}
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (!::floating.isInitialized) return
+        val language=getString(R.string.resource_language)
+        if(language==currentLanguage)return
+        currentLanguage=language
+        stopRelay()
+        blockedKey="";lastContextKey="";relayError=""
+        floating.hide()
+        refresh()
+        RuntimeState.changed()
+    }
     private fun requested():Options=when(RuntimeState.trial){
         TrialStage.PASSTHROUGH->Options(false,false)
         TrialStage.SKILLS->Options(true,false)
@@ -87,7 +103,7 @@ class RemapService:AccessibilityService(),InputManager.InputDeviceListener {
             }
             if(RuntimeState.trial!=TrialStage.NONE){
                 if(game)trialSeenGame=true
-                else if(trialSeenGame){stopRelay();RuntimeState.endTrial()}
+                else if(trialSeenGame){stopRelay();RuntimeState.endTrial(this@RemapService)}
             }
             val profile=settings.profile
             val device=InputDevice.getDeviceIds().asSequence().mapNotNull(InputDevice::getDevice).firstOrNull{profile?.matches(it)==true}
@@ -108,28 +124,29 @@ class RemapService:AccessibilityService(),InputManager.InputDeviceListener {
                         .put("lt",profile.leftTrigger!!.axis).put("rt",profile.rightTrigger!!.axis)
                         .put("ry",profile.rightVertical?.id ?: 14).put("threshold",settings.threshold)
                         .put("skills",options.skills).put("vertical",options.rightVertical)
+                        .put("language",getString(R.string.resource_language))
                     bridge.startRelay(configuration,uid)
-                    RuntimeState.record("Démarrage du relais HID · "+device.name)
+                    RuntimeState.record(getString(R.string.relay_start_log)+device.name)
                 }
             } else if(!wanted)stopRelay()
             RuntimeState.relayActive=active
             RuntimeState.status=when {
                 !bridge.ready->bridge.state
-                profile==null->"Identifiez votre Kishi dans le diagnostic."
-                device==null->"Branchez la Kishi."
-                !profile.ready->"Identifiez les deux gâchettes."
-                !game->"En attente de Guild Wars."
-                keyboard->"Saisie en cours · commandes natives"
+                profile==null->getString(R.string.identify_kishi_prompt)
+                device==null->getString(R.string.connect_kishi_prompt)
+                !profile.ready->getString(R.string.identify_triggers_prompt)
+                !game->getString(R.string.waiting_for_game)
+                keyboard->getString(R.string.typing_native)
                 relayError.isNotEmpty()->relayError
-                connecting->"Connexion de la manette · relâchez les commandes…"
-                pending->"Relâchez les commandes pour appliquer le réglage."
-                active&&isTrial->"Essai temporaire · "+RuntimeState.trial.label
-                active->"Inversions actives dans Guild Wars"
-                !settings.validated(TrialStage.PASSTHROUGH)->"Transmission dans Guild Wars à vérifier."
-                else->"Commandes natives · inversions désactivées"
+                connecting->getString(R.string.controller_connecting)
+                pending->getString(R.string.settings_pending)
+                active&&isTrial->getString(R.string.temporary_trial)+RuntimeState.trial.label(this@RemapService)
+                active->getString(R.string.inversions_active)
+                !settings.validated(TrialStage.PASSTHROUGH)->getString(R.string.passthrough_needs_test)
+                else->getString(R.string.native_inversions_off)
             }
             floating.update(game&&!keyboard,active,effective)
-        } catch(e:Exception){stopRelay();floating.hide();RuntimeState.status="Fenêtre indisponible · commandes natives";RuntimeState.record("Fenêtre : "+e.javaClass.simpleName)}
+        } catch(e:Exception){stopRelay();floating.hide();RuntimeState.status=getString(R.string.window_unavailable);RuntimeState.record(getString(R.string.window_error_log)+e.javaClass.simpleName)}
         finally{refreshing=false;if(oldStatus!=RuntimeState.status)RuntimeState.changed()}
     }
     private fun onRelayStatus(status:JSONObject){
@@ -139,19 +156,19 @@ class RemapService:AccessibilityService(),InputManager.InputDeviceListener {
             "active"->{active=true;connecting=false}
             "starting"->{active=false;connecting=true}
             "failed"->{
-                blockedKey=sessionKey;relayError=status.optString("error","Transmission indisponible")
-                RuntimeState.record("Relais interrompu : "+relayError);RuntimeState.trialFailed=true
-                stopRelay();RuntimeState.endTrial();refresh();return
+                blockedKey=sessionKey;relayError=status.optString("error",getString(R.string.transmission_unavailable))
+                RuntimeState.record(getString(R.string.relay_interrupted_log)+relayError);RuntimeState.trialFailed=true
+                stopRelay();RuntimeState.endTrial(this@RemapService);refresh();return
             }
             "stopped"->{
                 val options=requested()
                 if(RuntimeState.trial!=TrialStage.NONE || options.skills || options.rightVertical){
                     blockedKey=sessionKey
-                    relayError="Transmission arrêtée · revenez dans le jeu pour réessayer"
+                    relayError=getString(R.string.relay_stopped_retry)
                     RuntimeState.trialFailed=true
                     RuntimeState.record(relayError)
                 }
-                stopRelay();RuntimeState.endTrial();refresh();return
+                stopRelay();RuntimeState.endTrial(this@RemapService);refresh();return
             }
         }
         effective=Options(status.optBoolean("skills"),status.optBoolean("vertical"));pending=status.optBoolean("pending")
@@ -179,7 +196,7 @@ class RemapService:AccessibilityService(),InputManager.InputDeviceListener {
         runCatching{unregisterReceiver(screen)}
         bridge.onRelayStatus=null;bridge.onFailure=null
         if(::floating.isInitialized)floating.hide()
-        RuntimeState.serviceConnected=false;RuntimeState.stopService=null;RuntimeState.endTrial();RuntimeState.changed()
+        RuntimeState.serviceConnected=false;RuntimeState.stopService=null;RuntimeState.endTrial(this@RemapService);RuntimeState.changed()
         super.onDestroy()
     }
 }

@@ -1,5 +1,6 @@
 package fr.kishiswitch.guildwars.ui
 
+import fr.kishiswitch.guildwars.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -43,7 +44,7 @@ class DiagnosticActivity : Activity() {
     override fun onResume() {
         super.onResume()
         RuntimeState.ownUiVisible = true
-        RuntimeState.endTrial()
+        RuntimeState.endTrial(this@DiagnosticActivity)
         RuntimeState.diagnosticVisible = true
         RuntimeState.listen(listener)
         RuntimeState.changed()
@@ -63,72 +64,72 @@ class DiagnosticActivity : Activity() {
         val p = settings.profile
         if (RuntimeState.trialStamp != settings.currentStamp()) RuntimeState.trialReadyToConfirm = TrialStage.NONE
         val screen = Ui.screen(this)
-        screen.paragraph("MISE EN PLACE", Ui.accent)
-        screen.heading("Vérifier la Kishi", true)
-        screen.paragraph("Cette étape se fait une fois pour votre installation. Les essais dans le jeu durent au maximum trois minutes et s’arrêtent en quittant Guild Wars.")
-        screen.action("Retour aux inversions") { finish() }
-        screen.action("Arrêter entièrement le service", RuntimeState.serviceConnected) { RuntimeState.stopService?.invoke() }
-        screen.heading("1 · Reconnaître la manette")
-        screen.paragraph(p?.name ?: "Branchez votre Kishi puis appuyez sur un de ses boutons.")
-        screen.paragraph(if (p == null) "Aucune manette identifiée." else "Identifiant matériel enregistré · ${p.vendor}:${p.product}")
-        live = screen.paragraph("Les commandes reçues s’afficheront ici.", Ui.accent)
-        screen.heading("2 · Identifier les commandes")
-        screen.action("Identifier LT · gâchette gauche", p != null) { beginCapture("lt") }
-        screen.action("Identifier RT · gâchette droite", p != null) { beginCapture("rt") }
-        screen.action("Identifier le vertical du stick droit", p != null) { beginCapture("ry") }
-        screen.paragraph("M2 : utilisez l’overlay pour cette version du relais HID.")
-        screen.paragraph("LT : ${p?.leftTrigger?.axis?.let(MotionEvent::axisToString) ?: "à identifier"}\nRT : ${p?.rightTrigger?.axis?.let(MotionEvent::axisToString) ?: "à identifier"}\nVertical droit : ${p?.rightVertical?.id?.let(MotionEvent::axisToString) ?: "à identifier"}\nM2 : ${p?.m2Code?.let(KeyEvent::keyCodeToString) ?: "overlay utilisé"}")
-        screen.action("Enregistrer la commande observée", capture != null) { saveCapture() }
-        screen.action("Annuler l’identification", capture != null) { capture = null; render() }
-        screen.heading("Seuil des gâchettes")
-        screen.paragraph("Réglage technique pour faire correspondre la bascule au maintien de LT/RT dans Guild Wars. Le modifier remet les essais à zéro.")
-        val thresholdLabel = screen.paragraph("Activation à ${(settings.threshold * 100).toInt()} % de la course")
+        screen.paragraph(getString(R.string.setup_kicker), Ui.accent)
+        screen.heading(getString(R.string.verify_kishi_title), true)
+        screen.paragraph(getString(R.string.diagnostic_intro))
+        screen.action(getString(R.string.back_to_inversions)) { finish() }
+        screen.action(getString(R.string.stop_service), RuntimeState.serviceConnected) { RuntimeState.stopService?.invoke() }
+        screen.heading(getString(R.string.identify_controller_title))
+        screen.paragraph(p?.name ?: getString(R.string.connect_press_button))
+        screen.paragraph(if (p == null) getString(R.string.no_controller_identified) else getString(R.string.hardware_saved, p.vendor, p.product))
+        live = screen.paragraph(getString(R.string.input_preview_hint), Ui.accent)
+        screen.heading(getString(R.string.identify_controls_title))
+        screen.action(getString(R.string.identify_lt), p != null) { beginCapture("lt") }
+        screen.action(getString(R.string.identify_rt), p != null) { beginCapture("rt") }
+        screen.action(getString(R.string.identify_right_vertical), p != null) { beginCapture("ry") }
+        screen.paragraph(getString(R.string.m2_overlay_hint))
+        screen.paragraph(getString(R.string.identified_axes, p?.leftTrigger?.axis?.let(MotionEvent::axisToString) ?: getString(R.string.needs_identification), p?.rightTrigger?.axis?.let(MotionEvent::axisToString) ?: getString(R.string.needs_identification), p?.rightVertical?.id?.let(MotionEvent::axisToString) ?: getString(R.string.needs_identification), p?.m2Code?.let(KeyEvent::keyCodeToString) ?: getString(R.string.overlay_used)))
+        screen.action(getString(R.string.save_control), capture != null) { saveCapture() }
+        screen.action(getString(R.string.cancel_identification), capture != null) { capture = null; render() }
+        screen.heading(getString(R.string.trigger_threshold_title))
+        screen.paragraph(getString(R.string.trigger_threshold_help))
+        val thresholdLabel = screen.paragraph(getString(R.string.trigger_threshold_value, (settings.threshold * 100).toInt()))
         val slider = SeekBar(this).apply {
             min = 5; max = 95; progress = (settings.threshold * 100).toInt()
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) { thresholdLabel.text = "Activation à $progress % de la course" }
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) { thresholdLabel.text = getString(R.string.trigger_threshold_value, progress) }
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                 override fun onStopTrackingTouch(seekBar: SeekBar?) { settings.threshold = (seekBar?.progress ?: 50) / 100f; RuntimeState.changed() }
             })
         }
         screen.addView(slider)
-        screen.heading("3 · Vérifier la connexion")
+        screen.heading(getString(R.string.verify_connection_title))
         screen.paragraph(app.bridge.state)
-        screen.action("Autoriser / reconnecter Shizuku") { app.bridge.connect(true) }
-        screen.paragraph("Le relais HID est vérifié directement dans Guild Wars. Relâchez les commandes avant de commencer chaque essai.")
-        screen.heading("4 · Essais dans Guild Wars")
+        screen.action(getString(R.string.shizuku_reconnect)) { app.bridge.connect(true) }
+        screen.paragraph(getString(R.string.relay_trial_hint))
+        screen.heading(getString(R.string.game_trials_title))
         for (stage in TrialStage.entries.filter { it != TrialStage.NONE }) {
             val valid = settings.validated(stage)
             val available = app.bridge.ready && RuntimeState.serviceConnected && p?.ready == true &&
                 (stage == TrialStage.PASSTHROUGH || settings.validated(TrialStage.PASSTHROUGH)) &&
                 (stage != TrialStage.VERTICAL || p?.rightVertical != null)
-            screen.action("${stage.label} · ${if (valid) "validé" else "essayer"}", available) { startTrial(stage) }
+            screen.action(getString(R.string.trial_button, stage.label(this@DiagnosticActivity), if (valid) getString(R.string.validated) else getString(R.string.try_test)), available) { startTrial(stage) }
         }
-        if (RuntimeState.trial != TrialStage.NONE) screen.action("Arrêter l’essai en attente") { RuntimeState.endTrial() }
+        if (RuntimeState.trial != TrialStage.NONE) screen.action(getString(R.string.stop_pending_trial)) { RuntimeState.endTrial(this@DiagnosticActivity) }
         val pending = RuntimeState.trialReadyToConfirm
         if (pending != TrialStage.NONE) {
-            screen.paragraph("Retour de l’essai : ${pending.label}. ${RuntimeState.trialEvents} événement(s) transmis au relais HID. Confirmez le résultat observé dans le jeu.", Ui.accent)
-            screen.action("Confirmer que l’essai fonctionne dans le jeu") { confirmTrial(pending) }
-            screen.action("L’essai ne fonctionne pas") {
+            screen.paragraph(getString(R.string.trial_returned, pending.label(this@DiagnosticActivity), RuntimeState.trialEvents), Ui.accent)
+            screen.action(getString(R.string.confirm_trial_button)) { confirmTrial(pending) }
+            screen.action(getString(R.string.trial_failed_button)) {
                 settings.unvalidate(pending); RuntimeState.trialReadyToConfirm = TrialStage.NONE
-                RuntimeState.record("Échec constaté dans le jeu : ${pending.label}")
+                RuntimeState.record(getString(R.string.trial_failed_log, pending.label(this@DiagnosticActivity)))
                 RuntimeState.changed()
             }
         }
-        screen.paragraph("L’inversion des compétences et celle du stick droit deviennent actives séparément après confirmation. Les deux préférences sont activées par défaut.")
-        screen.heading("Compte rendu local")
-        screen.action("Afficher le compte rendu") {
-            val report = "Kishi Switch ${fr.kishiswitch.guildwars.BuildConfig.VERSION_NAME} · Android ${android.os.Build.VERSION.RELEASE}\n" +
+        screen.paragraph(getString(R.string.validation_preferences_hint))
+        screen.heading(getString(R.string.local_report_title))
+        screen.action(getString(R.string.show_report)) {
+            val report = getString(R.string.report_header, fr.kishiswitch.guildwars.BuildConfig.VERSION_NAME, android.os.Build.VERSION.RELEASE) +
                 "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}\n" +
-                "${p?.name ?: "Manette absente"}\n${app.bridge.state}\n" +
-                "Interception mouvements=${RuntimeState.capturingMotion}, boutons=${RuntimeState.filteringKeys}\n" +
-                "Transport HID · relais actif=${RuntimeState.relayActive}\n" +
-                "LT=${p?.leftTrigger?.axis}, RT=${p?.rightTrigger?.axis}, vertical droit=${p?.rightVertical?.id}\n" +
-                TrialStage.entries.filter { it != TrialStage.NONE }.joinToString("\n") { "${it.label} : ${if (settings.validated(it)) "confirmé par l’utilisateur" else "non validé"}" } +
+                "${p?.name ?: getString(R.string.controller_missing)}\n${app.bridge.state}\n" +
+                getString(R.string.report_interception, RuntimeState.capturingMotion, RuntimeState.filteringKeys) +
+                getString(R.string.report_hid, RuntimeState.relayActive) +
+                getString(R.string.report_axes, p?.leftTrigger?.axis, p?.rightTrigger?.axis, p?.rightVertical?.id) +
+                TrialStage.entries.filter { it != TrialStage.NONE }.joinToString("\n") { getString(R.string.report_validation, it.label(this@DiagnosticActivity), if (settings.validated(it)) getString(R.string.user_confirmed) else getString(R.string.not_validated)) } +
                 "\n\n" + RuntimeState.report()
-            AlertDialog.Builder(this).setTitle("Diagnostic").setMessage(report)
-                .setPositiveButton("Fermer", null).setNeutralButton("Partager…") { _, _ ->
-                    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, report), "Compte rendu"))
+            AlertDialog.Builder(this).setTitle(getString(R.string.diagnostics)).setMessage(report)
+                .setPositiveButton(getString(R.string.close), null).setNeutralButton(getString(R.string.share)) { _, _ ->
+                    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, report), getString(R.string.report_title)))
                 }.show()
         }
     }
@@ -141,7 +142,7 @@ class DiagnosticActivity : Activity() {
         if (p != null) return if (p.matches(device)) device else null
         if (device.vendorId != 0x1532 && !device.name.contains("kishi", true)) return null
         settings.profile = HardwareProfile(device.descriptor, device.name, device.vendorId, device.productId)
-        RuntimeState.record("Kishi identifiée : ${device.name}")
+        RuntimeState.record(getString(R.string.kishi_identified_log, device.name))
         render()
         return device
     }
@@ -150,10 +151,10 @@ class DiagnosticActivity : Activity() {
         if (receiverTest && event.deviceId < 0 && event.keyCode == KeyEvent.KEYCODE_BUTTON_16) { showReceived(event); return true }
         if (candidateDevice(event) == null) return super.dispatchKeyEvent(event)
         if (event.action == KeyEvent.ACTION_DOWN) {
-            live.text = "${KeyEvent.keyCodeToString(event.keyCode)} · code physique ${event.scanCode}"
+            live.text = getString(R.string.key_scancode, KeyEvent.keyCodeToString(event.keyCode), event.scanCode)
             if (capture == "m2") {
                 candidateM2 = event.keyCode.takeIf { it in KeyEvent.KEYCODE_BUTTON_1..KeyEvent.KEYCODE_BUTTON_16 && it !in observedKeys }
-                if (candidateM2 == null) live.text = "M2 reproduit une touche standard ou déjà observée. L’overlay servira d’interrupteur."
+                if (candidateM2 == null) live.text = getString(R.string.m2_duplicate_hint)
             } else observedKeys.add(event.keyCode)
         }
         return true
@@ -173,7 +174,7 @@ class DiagnosticActivity : Activity() {
         if (SystemClock.uptimeMillis() - lastDisplayAt > 150) {
             lastDisplayAt = SystemClock.uptimeMillis()
             live.text = device.motionRanges.filter { kotlin.math.abs(event.getAxisValue(it.axis)) > .03f }
-                .joinToString(" · ") { "${MotionEvent.axisToString(it.axis)} = ${"%.2f".format(event.getAxisValue(it.axis))}" }.ifBlank { "Commandes au repos" }
+                .joinToString(" · ") { "${MotionEvent.axisToString(it.axis)} = ${"%.2f".format(event.getAxisValue(it.axis))}" }.ifBlank { getString(R.string.controls_at_rest) }
         }
         return true
     }
@@ -182,22 +183,22 @@ class DiagnosticActivity : Activity() {
         capture = which; amplitudes.clear(); observedMin.clear(); observedMax.clear(); candidateM2 = null
         render()
         val instruction = when (which) {
-            "lt" -> "Sans toucher aux sticks, enfoncez LT complètement puis relâchez. Touchez ensuite « Enregistrer »."
-            "rt" -> "Sans toucher aux sticks, enfoncez RT complètement puis relâchez. Touchez ensuite « Enregistrer »."
-            "ry" -> "Sans toucher aux autres commandes, poussez le stick DROIT en haut puis en bas, puis laissez-le revenir au centre. Touchez ensuite « Enregistrer »."
-            else -> "Appuyez une fois sur M2 puis touchez « Enregistrer ». Un bouton qui duplique une touche standard ne sera pas utilisé."
+            "lt" -> getString(R.string.capture_lt_help)
+            "rt" -> getString(R.string.capture_rt_help)
+            "ry" -> getString(R.string.capture_right_help)
+            else -> getString(R.string.capture_m2_help)
         }
         live.text = instruction
-        AlertDialog.Builder(this).setTitle("Identifier la commande").setMessage(instruction).setPositiveButton("Compris", null).show()
+        AlertDialog.Builder(this).setTitle(getString(R.string.identify_control_title)).setMessage(instruction).setPositiveButton(getString(R.string.understood), null).show()
     }
 
     private fun saveCapture() {
         val p = settings.profile ?: return
-        val device = InputDevice.getDeviceIds().asSequence().mapNotNull(InputDevice::getDevice).firstOrNull { p.matches(it) } ?: return toast("Rebranchez la Kishi.")
+        val device = InputDevice.getDeviceIds().asSequence().mapNotNull(InputDevice::getDevice).firstOrNull { p.matches(it) } ?: return toast(getString(R.string.reconnect_kishi))
         val which = capture ?: return
         if (which == "m2") {
             settings.profile = p.copy(m2Code = candidateM2)
-            RuntimeState.record(if (candidateM2 != null) "M2 distinct enregistré" else "M2 non distinct : overlay retenu")
+            RuntimeState.record(if (candidateM2 != null) getString(R.string.m2_saved_log) else getString(R.string.m2_duplicate_log))
         } else {
             val preferred = when (which) {
                 "lt" -> listOf(MotionEvent.AXIS_LTRIGGER, MotionEvent.AXIS_BRAKE)
@@ -209,47 +210,47 @@ class DiagnosticActivity : Activity() {
                 else amplitudes.filterKeys { it in preferred }
             val axis = if (which == "ry") eligible.keys.singleOrNull()
                 else preferred.firstOrNull { (eligible[it] ?: 0f) >= .8f }
-            if (axis == null) return toast("Mouvement insuffisant ou axe ambigu. Refaites le geste complet.")
+            if (axis == null) return toast(getString(R.string.axis_ambiguous))
             val range = device.getMotionRange(axis, InputDevice.SOURCE_JOYSTICK) ?: device.getMotionRange(axis)
-                ?: return toast("Cet axe ne fournit pas de plage analogique.")
+                ?: return toast(getString(R.string.axis_no_range))
             settings.profile = when (which) {
                 "lt" -> p.copy(leftTrigger = TriggerSpec(axis, range.min, range.max))
                 "rt" -> p.copy(rightTrigger = TriggerSpec(axis, range.min, range.max))
                 else -> p.copy(rightVertical = AxisSpec(axis, range.min, range.max, range.flat))
             }
-            RuntimeState.record("Commande $which identifiée : ${MotionEvent.axisToString(axis)}")
+            RuntimeState.record(getString(R.string.control_identified_log, which, MotionEvent.axisToString(axis)))
         }
         capture = null; render(); RuntimeState.changed()
     }
 
     private fun startTrial(stage: TrialStage) {
-        val launch = packageManager.getLaunchIntentForPackage(GAME_PACKAGE) ?: return toast("Guild Wars Reforged n’est pas installé.")
+        val launch = packageManager.getLaunchIntentForPackage(GAME_PACKAGE) ?: return toast(getString(R.string.game_not_installed))
         val task = when (stage) {
-            TrialStage.PASSTHROUGH -> "Vérifiez le déplacement, les deux sticks, les gâchettes, les boutons et le retour au repos. Rien ne doit être inversé."
-            TrialStage.SKILLS -> "Testez LT+X/A/Y/B puis RT+X/A/Y/B. Les positions des compétences doivent correspondre à celles de la manette. Vérifiez aussi les boutons seuls et les relâchements."
-            TrialStage.VERTICAL -> "Vérifiez que haut/bas du stick droit est inversé, à petite et grande amplitude. Le stick gauche et l’horizontal droit doivent fonctionner normalement."
+            TrialStage.PASSTHROUGH -> getString(R.string.passthrough_test_help)
+            TrialStage.SKILLS -> getString(R.string.skills_test_help)
+            TrialStage.VERTICAL -> getString(R.string.vertical_test_help)
             else -> return
         }
-        AlertDialog.Builder(this).setTitle(stage.label).setMessage("$task\n\nRelâchez les commandes pendant la connexion. Revenez ensuite ici pour confirmer le résultat. L’essai s’arrête automatiquement après trois minutes ou en quittant le jeu.")
-            .setNegativeButton("Annuler", null).setPositiveButton("Commencer") { _, _ ->
+        AlertDialog.Builder(this).setTitle(stage.label(this@DiagnosticActivity)).setMessage(getString(R.string.trial_instructions, task))
+            .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.start)) { _, _ ->
                 settings.unvalidate(stage)
-                RuntimeState.beginTrial(stage, settings.currentStamp())
+                RuntimeState.beginTrial(this@DiagnosticActivity, stage, settings.currentStamp())
                 startActivity(launch)
             }.show()
     }
 
     private fun confirmTrial(stage: TrialStage) {
-        AlertDialog.Builder(this).setTitle("Confirmer le résultat observé")
-            .setMessage("Confirmez uniquement si vous avez effectué toutes les vérifications de cet essai dans Guild Wars, sans commandes perdues, doublées ou bloquées. Le succès technique d’une injection ne suffit pas.")
-            .setNegativeButton("Pas encore", null).setPositiveButton("Tout fonctionne") { _, _ ->
+        AlertDialog.Builder(this).setTitle(getString(R.string.confirm_result_title))
+            .setMessage(getString(R.string.confirm_result_help))
+            .setNegativeButton(getString(R.string.not_yet), null).setPositiveButton(getString(R.string.everything_works)) { _, _ ->
                 if (RuntimeState.trialStamp != settings.currentStamp() || RuntimeState.trialReadyToConfirm != stage) {
                     RuntimeState.trialReadyToConfirm = TrialStage.NONE
-                    toast("L’installation a changé. Refaites cet essai.")
+                    toast(getString(R.string.installation_changed))
                     render()
                     return@setPositiveButton
                 }
                 settings.validate(stage)
-                RuntimeState.record("Validation dans Guild Wars confirmée par l’utilisateur : ${stage.label}")
+                RuntimeState.record(getString(R.string.trial_confirmed_log, stage.label(this@DiagnosticActivity)))
                 RuntimeState.trialReadyToConfirm = TrialStage.NONE
                 RuntimeState.changed(); render()
             }.show()
@@ -260,7 +261,7 @@ class DiagnosticActivity : Activity() {
         val now = SystemClock.uptimeMillis()
         val down = KeyEvent(now, now, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_16, 0, 0, -1, 0, 0, InputDevice.SOURCE_GAMEPAD)
         val up = KeyEvent(now, now + 1, KeyEvent.ACTION_UP, down.keyCode, 0, 0, -1, 0, 0, InputDevice.SOURCE_GAMEPAD)
-        live.text = "Test des boutons et mouvements dans notre récepteur…"
+        live.text = getString(R.string.local_receiver_testing)
         app.bridge.send(down, applicationInfo.uid)
         app.bridge.send(up, applicationInfo.uid)
         for (value in listOf(.25f, 0f)) {
@@ -277,9 +278,9 @@ class DiagnosticActivity : Activity() {
     }
     private fun showReceived(event: InputEvent) {
         if (event is KeyEvent) receivedKeys++ else receivedMotions++
-        live.text = "Réception locale : $receivedKeys événements de boutons, $receivedMotions mouvements.\nLa réception par Guild Wars reste à vérifier."
-        RuntimeState.record(if (event is KeyEvent) "Récepteur local : ${KeyEvent.keyCodeToString(event.keyCode)}, action ${event.action}"
-            else "Récepteur local : mouvement, X=${(event as MotionEvent).getAxisValue(MotionEvent.AXIS_X)}, RZ=${event.getAxisValue(MotionEvent.AXIS_RZ)}")
+        live.text = getString(R.string.local_receiver_result, receivedKeys, receivedMotions)
+        RuntimeState.record(if (event is KeyEvent) getString(R.string.local_key_log, KeyEvent.keyCodeToString(event.keyCode), event.action)
+            else getString(R.string.local_motion_log, (event as MotionEvent).getAxisValue(MotionEvent.AXIS_X).toString(), event.getAxisValue(MotionEvent.AXIS_RZ).toString()))
     }
     private fun toast(message: String) { Toast.makeText(this, message, Toast.LENGTH_LONG).show() }
 }

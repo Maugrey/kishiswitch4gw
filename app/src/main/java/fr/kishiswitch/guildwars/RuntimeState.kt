@@ -1,6 +1,7 @@
 package fr.kishiswitch.guildwars
 
 import android.os.SystemClock
+import android.content.Context
 import fr.kishiswitch.guildwars.data.TrialStage
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -13,7 +14,7 @@ object RuntimeState {
     var capturingMotion = false
     var filteringKeys = false
     var relayActive = false
-    var status = "Activez le service d’accessibilité."
+    var status = ""
     var trial: TrialStage = TrialStage.NONE
         private set
     var trialExpiresAt = 0L
@@ -40,16 +41,16 @@ object RuntimeState {
         }
     }
     fun report(): String = synchronized(log) { log.joinToString("\n") }
-    fun beginTrial(stage: TrialStage, stamp: String) {
+    fun beginTrial(context: Context, stage: TrialStage, stamp: String) {
         trialStamp = stamp
         trial = stage; trialExpiresAt = SystemClock.elapsedRealtime() + 180_000
         trialEvents = 0; trialCapturedMotions = 0; trialInjectedMotions = 0; trialInjectedKeys = 0
         trialFailed = false; trialReadyToConfirm = TrialStage.NONE
-        record("Essai démarré : ${stage.label}"); changed()
+        record(context.getString(R.string.trial_started_log, stage.label(context))); changed()
     }
-    fun endTrial() {
+    fun endTrial(context: Context) {
         if (trial == TrialStage.NONE) return
-        record("Fin ${trial.label} : trames HID=$trialInjectedMotions, changements de boutons=$trialInjectedKeys, échec technique=$trialFailed")
+        record(context.getString(R.string.trial_finished_log, trial.label(context), trialInjectedMotions, trialInjectedKeys, trialFailed))
         if (trial != TrialStage.NONE && trialEvents > 0 && !trialFailed) trialReadyToConfirm = trial
         trial = TrialStage.NONE; trialExpiresAt = 0
         changed()

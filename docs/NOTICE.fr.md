@@ -10,6 +10,12 @@ Shizuku doit être démarré et Kishi Switch autorisé dans Shizuku. Activer ens
 
 Depuis la version 0.1.2, l'application utilise un relais de manette HID : l’accessibilité sert à reconnaître la fenêtre du jeu, le clavier et à afficher la pastille. Elle n’intercepte plus les boutons ni les mouvements. La 0.1.3 ajoute la licence et les attributions ; elle conserve ce transport.
 
+## Choisir la langue de l'application
+
+La version 0.1.5 propose toute l'interface en français et en anglais. Elle suit la langue du téléphone, avec l'anglais comme langue de repli pour les autres langues. **Langue de l'application** sur l'écran principal ouvre les paramètres Android, où choisir le français, l'anglais ou la langue du système. Ce choix conserve le profil matériel, les préférences d'inversion et les validations effectuées.
+
+Le diagnostic et les messages du relais utilisent la langue choisie. Les anciennes lignes du journal conservent leur langue d'origine ; les messages techniques fournis par Android ou Shizuku peuvent avoir leur propre langue. Les textes officiels des licences restent dans leur langue d'origine. Les mentions des composants tiers comprennent une section anglaise et une section française complètes.
+
 ## Vérifier les inversions
 
 Il n’est pas nécessaire de refaire une identification déjà enregistrée avec LT = AXIS_LTRIGGER, RT = AXIS_RTRIGGER et vertical droit = AXIS_RZ.

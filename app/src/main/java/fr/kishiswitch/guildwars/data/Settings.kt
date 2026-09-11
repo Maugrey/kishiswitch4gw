@@ -1,5 +1,6 @@
 package fr.kishiswitch.guildwars.data
 
+import fr.kishiswitch.guildwars.R
 import android.content.Context
 import android.os.Build
 import android.view.InputDevice
@@ -81,9 +82,11 @@ class Settings(private val context: Context) {
     }
 }
 
-enum class TrialStage(val label: String) {
-    NONE("Aucun essai"),
-    PASSTHROUGH("1 · Transmission intacte"),
-    SKILLS("2 · Compétences"),
-    VERTICAL("3 · Stick droit"),
+enum class TrialStage(val labelRes: Int) {
+    NONE(R.string.trial_none),
+    PASSTHROUGH(R.string.trial_passthrough),
+    SKILLS(R.string.trial_skills),
+    VERTICAL(R.string.trial_vertical);
+
+    fun label(context: Context): String = context.getString(labelRes)
 }

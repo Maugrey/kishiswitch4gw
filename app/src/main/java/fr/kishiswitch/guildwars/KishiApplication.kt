@@ -11,6 +11,7 @@ class KishiApplication : Application() {
         private set
     override fun onCreate() {
         super.onCreate()
+        RuntimeState.status = getString(R.string.enable_accessibility_prompt)
         settings = Settings(this)
         bridge = BridgeClient(this)
     }

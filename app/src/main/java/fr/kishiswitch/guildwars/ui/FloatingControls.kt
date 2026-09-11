@@ -1,5 +1,6 @@
 package fr.kishiswitch.guildwars.ui
 
+import fr.kishiswitch.guildwars.R
 import android.accessibilityservice.AccessibilityService
 import android.graphics.PixelFormat
 import android.view.Gravity
@@ -40,25 +41,25 @@ class FloatingControls(private val service: AccessibilityService, private val se
             elevation = Ui.dp(service, 8).toFloat()
         }
         root = column
-        val bubble = Ui.text(service, if (expanded) "GW  ·  Réglages" else "GW", 15f, Ui.accent).apply {
+        val bubble = Ui.text(service, if (expanded) service.getString(R.string.overlay_settings) else "GW", 15f, Ui.accent).apply {
             gravity = Gravity.CENTER; minHeight = Ui.dp(service, 44); minWidth = Ui.dp(service, 44)
-            contentDescription = "Afficher ou masquer les inversions Guild Wars"
+            contentDescription = service.getString(R.string.overlay_description)
             isClickable = true
         }
         column.addView(bubble, LinearLayout.LayoutParams(if (expanded) -1 else Ui.dp(service, 44), Ui.dp(service, 44)))
         if (expanded) {
             if (RuntimeState.trial != TrialStage.NONE) {
-                column.paragraph("ESSAI · ${RuntimeState.trial.label}", Ui.accent)
-                column.action("Arrêter l’essai") { RuntimeState.endTrial(); expanded = false; rebuild() }
+                column.paragraph(service.getString(R.string.overlay_trial, RuntimeState.trial.label(service)), Ui.accent)
+                column.action(service.getString(R.string.stop_trial)) { RuntimeState.endTrial(service); expanded = false; rebuild() }
             } else {
-                column.toggle("Compétences", settings.options.skills, settings.validated(TrialStage.SKILLS)) {
+                column.toggle(service.getString(R.string.skills), settings.options.skills, settings.validated(TrialStage.SKILLS)) {
                     settings.options = settings.options.copy(skills = it); collapse()
                 }
-                column.toggle("Vertical stick droit", settings.options.rightVertical, settings.validated(TrialStage.VERTICAL)) {
+                column.toggle(service.getString(R.string.right_stick_vertical), settings.options.rightVertical, settings.validated(TrialStage.VERTICAL)) {
                     settings.options = settings.options.copy(rightVertical = it); collapse()
                 }
                 column.paragraph(RuntimeState.status)
-                if (!settings.validated(TrialStage.SKILLS)) column.paragraph("Terminez les essais dans Kishi Switch.")
+                if (!settings.validated(TrialStage.SKILLS)) column.paragraph(service.getString(R.string.complete_trials_prompt))
             }
         }
         val width = if (expanded) Ui.dp(service, 272) else Ui.dp(service, 60)

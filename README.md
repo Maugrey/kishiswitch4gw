@@ -4,7 +4,7 @@ English | [Français](README.fr.md)
 
 A personal Android 16 controller utility built with Kotlin and Android Views. It uses Shizuku, installed separately, without root or replacing your keyboard.
 
-**Version 0.1.4 provides English and French documentation and bilingual attribution explanations inside the APK.** The app interface remains in French; the English user guide includes the corresponding French button labels.
+**Version 0.1.5 provides the app interface in English and French**, including setup, diagnostics, floating controls and relay errors. The app follows your phone's language, with English as the fallback. Use **App language** on the main screen to choose English or French in Android's settings. Documentation and third-party notices are also available in both languages.
 
 **Controller passthrough and both inversions were confirmed by the user in Guild Wars on a OnePlus 11 with version 0.1.2.** Version 0.1.3 added licensing and attribution. Guided tests are still required on a new installation or after a configuration change. See the [validation report](docs/VALIDATION.md) and the [technical investigation (French)](docs/DIAGNOSTIC-TRANSMISSION.md).
 
@@ -55,7 +55,7 @@ Required Notice: Kishi Switch - Copyright (c) 2026 Maugrey.
 Required Notice: Original source: https://github.com/Maugrey/kishiswitch4gw
 ```
 
-This project makes its source available for noncommercial use; it is not described as open source under the OSI definition. Third-party libraries retain their own licenses, documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). In the app, open **Licences et attribution** to read the texts and access the repository. Official license texts remain in their original language; explanatory notices are provided in English and French.
+This project makes its source available for noncommercial use; it is not described as open source under the OSI definition. Third-party libraries retain their own licenses, documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), with complete English and French sections. In the app, open **Licenses and attribution** to read the texts and access the repository. Official license texts remain in their original language.
 
 ## Project layout
 

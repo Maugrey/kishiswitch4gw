@@ -26,8 +26,8 @@ android {
         applicationId = "fr.kishiswitch.guildwars"
         minSdk = 36
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.1.4"
+        versionCode = 6
+        versionName = "0.1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -46,6 +46,8 @@ android {
         }
     }
     buildFeatures { aidl = true; buildConfig = true }
+    // Both languages must remain available when the app changes locale offline.
+    bundle { language { enableSplit = false } }
     sourceSets.getByName("main").assets.srcDir(layout.buildDirectory.dir("generated/legalAssets"))
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
