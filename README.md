@@ -2,15 +2,15 @@
 
 Application personnelle pour Android 16, écrite en Kotlin et Android Views. Elle utilise Shizuku, installé séparément, sans root ni remplacement du clavier.
 
-**Version 0.1.1 : le blocage pendant « Transmission intacte » persiste dans Guild Wars sur le OnePlus.** Le compte rendu confirme 1 117 mouvements capturés et 1 117 injections acceptées par Android, sans filtrage des boutons ni erreur Shizuku. Les commandes reviennent à l’arrêt de l’essai. Un test complet sur émulateur confirme que les mouvements injectés reçoivent l’identifiant virtuel `-1`, tandis que les boutons restent associés à la manette ; la réception fonctionne dans notre récepteur de test. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md). Les inversions restent verrouillées jusqu’à validation dans le jeu.
+**Version 0.1.2 : nouveau relais de manette HID.** La réinjection Android de la 0.1.1 ne fonctionnait pas dans Guild Wars. Un prototype utilisant EVIOCGRAB et UHID via l’identité shell a ensuite retransmis les sticks et les boutons correctement sur le OnePlus, résultat confirmé par l’utilisateur. Ce mécanisme est intégré à la 0.1.2 ; les inversions restent soumises aux essais guidés dans le jeu. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md) et le [compte rendu actuel](docs/VALIDATION.md).
 
 ## Installation et utilisation
 
-Télécharger l’APK personnel signé dans les [releases du dépôt privé](https://github.com/Maugrey/kishiswitch4gw/releases). La connexion au compte GitHub ayant accès au dépôt est nécessaire. La version 0.1.1 est une préversion de diagnostic.
+Télécharger l’APK personnel signé dans les [releases du dépôt privé](https://github.com/Maugrey/kishiswitch4gw/releases). La connexion au compte GitHub ayant accès au dépôt est nécessaire. La version 0.1.2 est une préversion avec nouveau transport.
 
 Voir la [notice française](docs/NOTICE.md), puis le [compte rendu et les essais restants](docs/VALIDATION.md).
 
-Le comportement programmé est A ↔ X et B ↔ Y pendant LT/RT, et l’inversion haut/bas du **stick droit** indépendamment des gâchettes. Les boutons seuls gardent leur rôle. Les deux préférences démarrent activées, mais ne deviennent effectives qu’après leur validation séparée. Le paquet cible est `net.arena.guildwars.reforged` ; son installation doit être confirmée sur le téléphone.
+Le comportement programmé est A ↔ X et B ↔ Y pendant LT/RT, et l’inversion haut/bas du **stick droit** indépendamment des gâchettes. Les boutons seuls gardent leur rôle. Les deux préférences démarrent activées, mais ne deviennent effectives qu’après leur validation séparée. Le paquet `net.arena.guildwars.reforged` et les axes LT/RTRIGGER/RZ sont confirmés sur le OnePlus. Le relais cible le profil matériel Kishi V2 Pro 1532:0717 ; les commandes passent par l’overlay, M2 restant indisponible dans cette version.
 
 ## Compiler sous Windows
 
@@ -40,9 +40,9 @@ Sorties Gradle : `app/build/outputs/apk/debug/app-debug.apk` et `app/build/outpu
 
 ## Organisation
 
-- `engine/` : machine à états indépendante d’Android, seuil analogique avec hystérésis, correspondance figée entre appui et relâchement, changements différés au repos.
-- `app/.../input/` : accessibilité, fenêtre active, suspension lors du clavier/verrouillage, copie des mouvements et de leur historique.
-- `app/.../bridge/` : AIDL interne et UserService Shizuku ; file unique et bornée, injection ciblée vers l’UID du jeu, contrôle de l’appelant.
+- `engine/` : machine à états et codage HID indépendants d’Android, seuil analogique avec hystérésis, correspondance figée entre appui et relâchement, changements différés au repos.
+- `app/.../input/` : accessibilité pour le premier plan, le clavier, le verrouillage et l’overlay ; aucune interception des commandes.
+- `app/.../bridge/` : AIDL interne, UserService Shizuku, lecture exclusive de la Kishi et transmission à une manette UHID ; contrôle de l’appelant et arrêt automatique sur perte de connexion.
 - `app/.../data/` : préférences, profil matériel et validations liées au profil, au seuil, à la version du jeu et au système.
 - `app/.../ui/` : écran principal, identification guidée, essais temporaires et overlay sans focus clavier.
 
@@ -50,8 +50,8 @@ Le service d’accessibilité consulte le paquet de la fenêtre applicative et l
 
 ## Limite technique déterminante
 
-La capture des mouvements d’une source par l’accessibilité arrête leur livraison native. Il faut donc retransmettre le flux complet, y compris pour lire LT/RT. L’injection Android peut donner aux commandes l’identité d’un périphérique virtuel. **Seul Guild Wars sur le téléphone permet de vérifier qu’il accepte cette transmission et son association aux boutons physiques.** Shizuku utilise ici une API Android interne ; une mise à jour système peut la modifier.
+La capture par l’accessibilité et la réinjection InputManager ont échoué dans Guild Wars. Le nouveau relais lit le périphérique Linux identifié et crée une manette UHID reconnue par Android. Il dépend des permissions shell d’OxygenOS et du format matériel de cette Kishi. Une mise à jour système peut imposer une nouvelle validation.
 
-Les essais temporaires s’arrêtent en quittant le jeu ou après trois minutes. En cas d’erreur de transport, l’app désactive l’interception et revient aux événements natifs. Les commandes synthétiques encore détenues sont relâchées lorsque le service est encore disponible. Aucun échange global XYAB n’est utilisé comme remplacement.
+UHID ne permet pas de cibler un UID par événement : la distribution normale d’Android est utilisée. Le service d’accessibilité commande l’arrêt sur changement de fenêtre, saisie et verrouillage. La Kishi est également libérée sur erreur, mort du client ou expiration de la liaison de contrôle. Les essais expirent après trois minutes. Aucun échange global XYAB n’est utilisé comme remplacement.
 
 Références : [onMotionEvent et interception des sources](https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#onMotionEvent(android.view.MotionEvent)), [InputDispatcher Android 16](https://android.googlesource.com/platform/frameworks/native/+/refs/heads/android16-release/services/inputflinger/dispatcher/InputDispatcher.cpp), [Shizuku API](https://github.com/RikkaApps/Shizuku-API), [compatibilité AGP](https://developer.android.com/build/releases/agp-8-13-0-release-notes).

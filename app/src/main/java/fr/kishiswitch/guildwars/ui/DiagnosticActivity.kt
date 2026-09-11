@@ -76,7 +76,7 @@ class DiagnosticActivity : Activity() {
         screen.action("Identifier LT · gâchette gauche", p != null) { beginCapture("lt") }
         screen.action("Identifier RT · gâchette droite", p != null) { beginCapture("rt") }
         screen.action("Identifier le vertical du stick droit", p != null) { beginCapture("ry") }
-        screen.action("Tester M2 · facultatif", p != null) { beginCapture("m2") }
+        screen.paragraph("M2 : utilisez l’overlay pour cette version du relais HID.")
         screen.paragraph("LT : ${p?.leftTrigger?.axis?.let(MotionEvent::axisToString) ?: "à identifier"}\nRT : ${p?.rightTrigger?.axis?.let(MotionEvent::axisToString) ?: "à identifier"}\nVertical droit : ${p?.rightVertical?.id?.let(MotionEvent::axisToString) ?: "à identifier"}\nM2 : ${p?.m2Code?.let(KeyEvent::keyCodeToString) ?: "overlay utilisé"}")
         screen.action("Enregistrer la commande observée", capture != null) { saveCapture() }
         screen.action("Annuler l’identification", capture != null) { capture = null; render() }
@@ -95,8 +95,7 @@ class DiagnosticActivity : Activity() {
         screen.heading("3 · Vérifier la connexion")
         screen.paragraph(app.bridge.state)
         screen.action("Autoriser / reconnecter Shizuku") { app.bridge.connect(true) }
-        screen.action("Tester la réception ici", app.bridge.ready) { testReceiver() }
-        screen.paragraph("Ce test vérifie le transport vers notre app. Seuls les essais suivants prouvent la réception dans Guild Wars.")
+        screen.paragraph("Le relais HID est vérifié directement dans Guild Wars. Relâchez les commandes avant de commencer chaque essai.")
         screen.heading("4 · Essais dans Guild Wars")
         for (stage in TrialStage.entries.filter { it != TrialStage.NONE }) {
             val valid = settings.validated(stage)
@@ -108,7 +107,7 @@ class DiagnosticActivity : Activity() {
         if (RuntimeState.trial != TrialStage.NONE) screen.action("Arrêter l’essai en attente") { RuntimeState.endTrial() }
         val pending = RuntimeState.trialReadyToConfirm
         if (pending != TrialStage.NONE) {
-            screen.paragraph("Retour de l’essai : ${pending.label}. Transmission réussie de ${RuntimeState.trialEvents} événement(s). La vérification visuelle reste nécessaire.", Ui.accent)
+            screen.paragraph("Retour de l’essai : ${pending.label}. ${RuntimeState.trialEvents} événement(s) transmis au relais HID. Confirmez le résultat observé dans le jeu.", Ui.accent)
             screen.action("Confirmer que l’essai fonctionne dans le jeu") { confirmTrial(pending) }
             screen.action("L’essai ne fonctionne pas") {
                 settings.unvalidate(pending); RuntimeState.trialReadyToConfirm = TrialStage.NONE
@@ -123,6 +122,7 @@ class DiagnosticActivity : Activity() {
                 "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}\n" +
                 "${p?.name ?: "Manette absente"}\n${app.bridge.state}\n" +
                 "Interception mouvements=${RuntimeState.capturingMotion}, boutons=${RuntimeState.filteringKeys}\n" +
+                "Transport HID · relais actif=${RuntimeState.relayActive}\n" +
                 "LT=${p?.leftTrigger?.axis}, RT=${p?.rightTrigger?.axis}, vertical droit=${p?.rightVertical?.id}\n" +
                 TrialStage.entries.filter { it != TrialStage.NONE }.joinToString("\n") { "${it.label} : ${if (settings.validated(it)) "confirmé par l’utilisateur" else "non validé"}" } +
                 "\n\n" + RuntimeState.report()
@@ -230,7 +230,7 @@ class DiagnosticActivity : Activity() {
             TrialStage.VERTICAL -> "Vérifiez que haut/bas du stick droit est inversé, à petite et grande amplitude. Le stick gauche et l’horizontal droit doivent fonctionner normalement."
             else -> return
         }
-        AlertDialog.Builder(this).setTitle(stage.label).setMessage("$task\n\nRevenez ensuite ici pour confirmer le résultat. L’essai s’arrête automatiquement après trois minutes ou en quittant le jeu.")
+        AlertDialog.Builder(this).setTitle(stage.label).setMessage("$task\n\nRelâchez les commandes pendant la connexion. Revenez ensuite ici pour confirmer le résultat. L’essai s’arrête automatiquement après trois minutes ou en quittant le jeu.")
             .setNegativeButton("Annuler", null).setPositiveButton("Commencer") { _, _ ->
                 settings.unvalidate(stage)
                 RuntimeState.beginTrial(stage, settings.currentStamp())

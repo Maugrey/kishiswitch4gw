@@ -1,3 +1,3 @@
 <resources>
-    <string name="accessibility_description">Reconnaît la fenêtre de Guild Wars et les commandes de la Kishi pour appliquer vos deux inversions. Ne remplace pas votre clavier et ne collecte pas le texte saisi. Les commandes natives reprennent lorsque le jeu est quitté ou que Shizuku est indisponible.</string>
+    <string name="accessibility_description">Reconnaît la fenêtre de Guild Wars et affiche les deux interrupteurs flottants. Suspend le relais de manette hors du jeu, au verrouillage et pendant la saisie. Ne remplace pas votre clavier et ne collecte pas le texte saisi. La transmission des commandes utilise Shizuku.</string>
 </resources>

@@ -3,6 +3,8 @@ package fr.kishiswitch.guildwars.bridge
 import android.content.Context
 import android.os.Binder
 import android.os.Process
+import android.os.IBinder
+import org.json.JSONObject
 import android.view.InputEvent
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -17,6 +19,7 @@ class InputBridge(context: Context) : IInputBridge.Stub() {
     private val manager = managerClass.getDeclaredMethod("getInstance").invoke(null)
     private val inject = managerClass.getMethod("injectInputEvent", InputEvent::class.java, Int::class.javaPrimitiveType, Int::class.javaPrimitiveType)
     private var lastError = ""
+    private var relay: HidRelay? = null
     override fun getLastError(): String { enforceOwner(); return lastError }
 
     private fun enforceOwner() {
@@ -26,13 +29,31 @@ class InputBridge(context: Context) : IInputBridge.Stub() {
     override fun injectKey(event: KeyEvent, targetUid: Int): Boolean = deliver(event, targetUid)
     override fun injectMotion(event: MotionEvent, targetUid: Int): Boolean = deliver(event, targetUid)
 
+    @Synchronized override fun startRelay(configuration: String, lifetime: IBinder, targetUid: Int): Boolean {
+        enforceOwner()
+        check(gameUid >= 10_000 && targetUid == gameUid) { "Cible non autorisée" }
+        relay?.close()
+        relay = HidRelay(JSONObject(configuration), lifetime).also { it.start() }
+        return true
+    }
+    @Synchronized override fun updateRelay(skills: Boolean, vertical: Boolean, draining: Boolean): String {
+        enforceOwner()
+        return relay?.update(skills, vertical, draining) ?: "{\"state\":\"stopped\"}"
+    }
+    @Synchronized override fun stopRelay(): String {
+        enforceOwner()
+        val current = relay ?: return "{\"state\":\"stopped\"}"
+        current.close(); relay = null
+        return current.status()
+    }
+
     private fun deliver(event: InputEvent, targetUid: Int): Boolean {
         enforceOwner()
         // The owner UID is only for the in-app test receiver. No arbitrary target injection.
         check(targetUid == ownerUid || (gameUid >= 10_000 && targetUid == gameUid)) { "Cible non autorisée" }
         val identity = Binder.clearCallingIdentity()
         return try {
-            // WAIT_FOR_RESULT (1): verify that the target accepted delivery. This call is off UI thread.
+            // Local diagnostic only: success means Android accepted dispatch, not game handling.
             (inject.invoke(manager, event, 1, targetUid) as Boolean).also { accepted ->
                 lastError = if (accepted) "" else "Android a refusé l’injection vers UID $targetUid"
             }
@@ -46,6 +67,7 @@ class InputBridge(context: Context) : IInputBridge.Stub() {
     override fun destroy() {
         val caller = Binder.getCallingUid()
         check(caller == ownerUid || caller == 2000 || caller == 0)
+        relay?.close()
         kotlin.system.exitProcess(0)
     }
 }

@@ -18,8 +18,8 @@ android {
         applicationId = "fr.kishiswitch.guildwars"
         minSdk = 36
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {

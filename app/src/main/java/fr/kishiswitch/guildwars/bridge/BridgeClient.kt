@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
+import android.os.Binder
 import android.os.Looper
 import android.view.InputEvent
 import android.view.KeyEvent
@@ -15,6 +16,8 @@ import fr.kishiswitch.guildwars.RuntimeState
 import fr.kishiswitch.guildwars.BuildConfig
 import rikka.shizuku.Shizuku
 import java.util.concurrent.atomic.AtomicInteger
+import fr.kishiswitch.engine.Options
+import org.json.JSONObject
 
 class BridgeClient(private val context: Context) {
     private val main = Handler(Looper.getMainLooper())
@@ -28,6 +31,11 @@ class BridgeClient(private val context: Context) {
     var onFailure: (() -> Unit)? = null
     val ready: Boolean get() = remote != null
     private var binding = false
+    private val relayEpoch = AtomicInteger()
+    private val lifetime = Binder()
+    @Volatile private var relayOptions = Options(false, false)
+    @Volatile private var relayDraining = false
+    var onRelayStatus: ((JSONObject) -> Unit)? = null
     private val args = Shizuku.UserServiceArgs(ComponentName(context, InputBridge::class.java))
         .daemon(false).processNameSuffix("input").tag("kishi-input-v1").version(BuildConfig.VERSION_CODE)
     private val connection = object : ServiceConnection {
@@ -118,8 +126,42 @@ class BridgeClient(private val context: Context) {
 
     fun cancelPending() { generation.incrementAndGet() }
 
+    fun startRelay(configuration: JSONObject, targetUid: Int) {
+        val peer=remote ?: return
+        val epoch=relayEpoch.incrementAndGet()
+        worker.post {
+            try {
+                if(epoch!=relayEpoch.get())return@post
+                check(peer.startRelay(configuration.toString(),lifetime,targetUid))
+                pollRelay(peer,epoch)
+            } catch(e:Exception) {
+                main.post { if(epoch==relayEpoch.get())onRelayStatus?.invoke(JSONObject().put("state","failed").put("error",e.message ?: "Connexion interrompue")) }
+            }
+        }
+    }
+    fun updateRelay(options:Options,draining:Boolean=false) { relayOptions=options;relayDraining=draining }
+    private fun pollRelay(peer:IInputBridge,epoch:Int) {
+        if(epoch!=relayEpoch.get())return
+        val result=runCatching { peer.updateRelay(relayOptions.skills,relayOptions.rightVertical,relayDraining) }
+        val json=result.getOrNull()?.let { runCatching { JSONObject(it) }.getOrNull() }
+            ?: JSONObject().put("state","failed").put("error","Connexion de transmission interrompue")
+        main.post { if(epoch==relayEpoch.get())onRelayStatus?.invoke(json) }
+        if(json.optString("state") in setOf("starting","active"))worker.postDelayed({pollRelay(peer,epoch)},250)
+    }
+    fun stopRelay() {
+        relayEpoch.incrementAndGet()
+        val peer=remote ?: return
+        worker.post {
+            runCatching { peer.stopRelay() }.getOrNull()?.let { status ->
+                val json=runCatching { JSONObject(status) }.getOrNull()
+                if(json!=null)RuntimeState.record("Relais arrêté : ${json.optLong("frames")} trames, ${json.optLong("keys")} changements de boutons")
+            }
+        }
+    }
+
     private fun lost(reason: String) {
         val wasReady = ready || binding
+        stopRelay()
         remote = null; binding = false; cancelPending(); state = reason
         if (wasReady) { RuntimeState.record(reason); onFailure?.invoke() }
         RuntimeState.changed()

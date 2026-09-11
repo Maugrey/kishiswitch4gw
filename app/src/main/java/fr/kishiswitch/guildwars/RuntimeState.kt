@@ -12,6 +12,7 @@ object RuntimeState {
     var stopService: (() -> Unit)? = null
     var capturingMotion = false
     var filteringKeys = false
+    var relayActive = false
     var status = "Activez le service d’accessibilité."
     var trial: TrialStage = TrialStage.NONE
         private set
@@ -48,7 +49,7 @@ object RuntimeState {
     }
     fun endTrial() {
         if (trial == TrialStage.NONE) return
-        record("Fin ${trial.label} : mouvements capturés=$trialCapturedMotions, injections mouvement acceptées=$trialInjectedMotions, injections bouton acceptées=$trialInjectedKeys, échec technique=$trialFailed")
+        record("Fin ${trial.label} : trames HID=$trialInjectedMotions, changements de boutons=$trialInjectedKeys, échec technique=$trialFailed")
         if (trial != TrialStage.NONE && trialEvents > 0 && !trialFailed) trialReadyToConfirm = trial
         trial = TrialStage.NONE; trialExpiresAt = 0
         changed()

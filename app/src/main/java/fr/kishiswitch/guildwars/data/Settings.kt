@@ -66,7 +66,7 @@ class Settings(private val context: Context) {
 
     fun currentStamp(): String {
         val version = runCatching { context.packageManager.getPackageInfo(GAME_PACKAGE, 0).longVersionCode }.getOrDefault(-1)
-        return "${Build.FINGERPRINT}|$version|${prefs.getString("profile", "")}|$threshold|protocol-2"
+        return "${Build.FINGERPRINT}|$version|${prefs.getString("profile", "")}|$threshold|protocol-3-hid"
     }
     fun validated(stage: TrialStage): Boolean = stage != TrialStage.NONE && prefs.getString("validated_${stage.name}", null) == currentStamp()
     fun validate(stage: TrialStage) {
