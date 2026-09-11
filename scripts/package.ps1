@@ -21,8 +21,9 @@ if ($taskVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Version de livraison inva
 $taskDist = Join-Path $taskRoot 'dist'
 $null = New-Item -ItemType Directory -Path $taskDist -Force
 Copy-Item -LiteralPath $taskApk -Destination (Join-Path $taskDist "KishiSwitch-$taskVersion.apk")
-Copy-Item -LiteralPath (Join-Path $taskRoot 'docs\NOTICE.md') -Destination $taskDist
-Copy-Item -LiteralPath (Join-Path $taskRoot 'docs\VALIDATION.md') -Destination $taskDist
+foreach ($taskDoc in @('NOTICE.md', 'NOTICE.fr.md', 'VALIDATION.md', 'VALIDATION.fr.md')) {
+    Copy-Item -LiteralPath (Join-Path $taskRoot "docs\$taskDoc") -Destination $taskDist
+}
 foreach ($taskLegal in @('LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md')) {
     Copy-Item -LiteralPath (Join-Path $taskRoot $taskLegal) -Destination $taskDist
 }
@@ -33,7 +34,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Création des sources impossible.' }
 $taskLegalZipPath = Join-Path $taskDist "KishiSwitch-$taskVersion-licenses.zip"
 & git -C $taskRoot archive --format=zip "--output=$taskLegalZipPath" HEAD LICENSE NOTICE THIRD_PARTY_NOTICES.md licenses
 if ($LASTEXITCODE -ne 0) { throw 'Création des mentions légales impossible.' }
-$taskReleaseFiles = @("KishiSwitch-$taskVersion.apk", "KishiSwitch-$taskVersion-sources.zip", "KishiSwitch-$taskVersion-licenses.zip", 'LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'NOTICE.md', 'VALIDATION.md') |
+$taskReleaseFiles = @("KishiSwitch-$taskVersion.apk", "KishiSwitch-$taskVersion-sources.zip", "KishiSwitch-$taskVersion-licenses.zip", 'LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'NOTICE.md', 'NOTICE.fr.md', 'VALIDATION.md', 'VALIDATION.fr.md') |
     ForEach-Object { Get-Item -LiteralPath (Join-Path $taskDist $_) }
 $taskHashes = $taskReleaseFiles |
     ForEach-Object { "$( (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() )  $($_.Name)" }

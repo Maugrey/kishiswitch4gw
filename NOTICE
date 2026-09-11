@@ -3,6 +3,22 @@ Kishi Switch
 Required Notice: Kishi Switch - Copyright (c) 2026 Maugrey.
 Required Notice: Original source: https://github.com/Maugrey/kishiswitch4gw
 
+English
+-------
+
+Kishi Switch's own code and documentation are available under the PolyForm
+Noncommercial 1.0.0 license included in LICENSE.
+https://polyformproject.org/licenses/noncommercial/1.0.0
+
+When redistributing the software, retain the two Required Notice lines above
+and provide the license text or its URL, as required by its Notices section.
+
+Third-party components retain their respective licenses. Their attributions
+and license texts are included in THIRD_PARTY_NOTICES.md and licenses/.
+
+Français
+--------
+
 Le code propre et la documentation de Kishi Switch sont disponibles sous la
 licence PolyForm Noncommercial 1.0.0 fournie dans LICENSE.
 https://polyformproject.org/licenses/noncommercial/1.0.0

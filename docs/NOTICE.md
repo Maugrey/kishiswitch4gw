@@ -1,46 +1,47 @@
-# Notice — Kishi Switch 0.1.3
+# Kishi Switch — user guide
 
-## Installation ou mise à jour
+English | [Français](NOTICE.fr.md)
 
-Installer `KishiSwitch-0.1.3.apk` par-dessus la version précédente, sans désinstaller l’app. Le profil matériel et les deux préférences restent mémorisés. Une mise à jour depuis la 0.1.2 conserve également les validations. En venant de la 0.1.1, les essais doivent être refaits car le transport a changé.
+## Install or update
 
-Shizuku doit être démarré et Kishi Switch autorisé dans Shizuku. Activer ensuite « Kishi Switch — manette » dans les paramètres d’accessibilité. Le [guide Shizuku](https://shizuku.rikka.app/guide/setup/) explique le démarrage sans root par débogage sans fil.
+Download the APK from [Releases](https://github.com/Maugrey/kishiswitch4gw/releases) and install it over your existing version, without uninstalling the app. Your hardware profile and both preferences are retained. Updates from 0.1.2 also retain validations. When upgrading from 0.1.1, repeat the guided tests because the transport has changed.
 
-Depuis la version 0.1.2, l'application utilise un relais de manette HID : l’accessibilité sert à reconnaître la fenêtre du jeu, le clavier et à afficher la pastille. Elle n’intercepte plus les boutons ni les mouvements. La 0.1.3 ajoute la licence et les attributions ; elle conserve ce transport.
+Start Shizuku and authorize Kishi Switch in Shizuku. Then enable **Kishi Switch — manette** in Android's accessibility settings. The [Shizuku guide](https://shizuku.rikka.app/guide/setup/) explains starting it without root through wireless debugging.
 
-## Vérifier les inversions
+Since version 0.1.2, the app uses a HID controller relay. Accessibility detects the game window and keyboard, and displays the floating controls. It no longer intercepts buttons or motion events. Version 0.1.3 added licensing and attribution while retaining this transport.
 
-Il n’est pas nécessaire de refaire une identification déjà enregistrée avec LT = AXIS_LTRIGGER, RT = AXIS_RTRIGGER et vertical droit = AXIS_RZ.
+The app's controls currently have French labels, shown below alongside their English meanings.
 
-1. Ouvrir le diagnostic et lancer **Transmission intacte**. Relâcher boutons, gâchettes et sticks pendant la connexion. Vérifier les commandes dans le jeu, revenir dans Kishi Switch et confirmer seulement le résultat observé.
-2. Lancer **Compétences**. Tester LT + chacun des quatre boutons, puis RT + chacun des quatre boutons. A et X sont échangés, ainsi que B et Y. Les boutons seuls restent identiques.
-3. Lancer **Stick droit**. Vérifier l’inversion haut/bas à faible et forte amplitude, le retour au neutre, le stick gauche et l’horizontal droit. Confirmer si tout fonctionne.
+## Verify the inversions
 
-Les essais durent au maximum trois minutes et s’arrêtent en quittant Guild Wars. La pastille GW permet aussi de les arrêter. Les deux fonctions sont activées par défaut après leur confirmation, puis suivent les derniers choix mémorisés.
+You do not need to repeat an identification already saved with LT = `AXIS_LTRIGGER`, RT = `AXIS_RTRIGGER` and right vertical = `AXIS_RZ`.
 
-Si le relais demande de relâcher une commande, relâcher la manette puis quitter et rouvrir le jeu, ou recommencer l’essai. Le seuil LT/RT reste réglable dans le diagnostic, initialement à 50 % de la course, avec une marge de relâchement de 5 points.
+1. Open the diagnostic screen and start **Transmission intacte** (passthrough). Release all buttons, triggers and sticks while connecting. Try the controls in the game, return to Kishi Switch, and confirm only the result you actually observed.
+2. Start **Compétences** (skills). Test LT with each face button, then RT with each face button. A and X are swapped, as are B and Y. Face buttons alone keep their usual behavior.
+3. Start **Stick droit** (right stick). Check vertical inversion at small and large deflections, return to neutral, the left stick and the right stick's horizontal axis. Confirm if everything works.
 
-## Utilisation
+Tests run for at most three minutes and stop when you leave Guild Wars. You can also stop them from the GW bubble. Both features are enabled by default after confirmation, then follow your last saved choices.
 
-- Toucher **GW** pour accéder à **Compétences** et **Vertical stick droit**. Faire glisser la pastille pour la déplacer.
-- Les réglages attendent le relâchement des boutons concernés ou le retour au neutre du stick droit.
-- Pour arrêter le relais, éteindre les deux interrupteurs et relâcher toutes les commandes, y compris le stick gauche.
-- Le clavier habituel reste sélectionné. Le relais s’arrête hors de Guild Wars, pendant la saisie et au verrouillage.
-- Cette version utilise l’overlay. Le raccourci M2 n’est pas disponible avec le nouveau relais.
+If the relay asks you to release a control, release the controller and leave and reopen the game, or restart the test. The LT/RT threshold can be adjusted in the diagnostic screen. It initially uses 50% of the trigger range, with a five-percentage-point release margin.
 
-## Arrêter ou reprendre
+## Use the floating controls
 
-« Arrêter entièrement le service » dans Kishi Switch désactive son service d’accessibilité. Le relais libère la Kishi et retire sa manette virtuelle.
+- Tap **GW** to open **Compétences** (skills) and **Vertical stick droit** (right stick vertical). Drag the bubble to move it.
+- Setting changes wait until the affected buttons are released or the right stick returns to neutral.
+- To stop the relay, turn both switches off and release all controls, including the left stick.
+- Your usual keyboard stays selected. The relay stops outside Guild Wars, while typing and when the phone locks.
+- This version uses the overlay. The M2 shortcut is unavailable with the new relay.
 
-Après un redémarrage du téléphone, relancer Shizuku. Si la connexion est interrompue, utiliser « Autoriser / reconnecter Shizuku ». Un contrôle périodique de connexion libère la Kishi si l’application ne répond plus ; aucune notification répétée n’est envoyée.
+## Stop or resume
 
-En cas de problème, revenir dans Kishi Switch et consulter « Afficher le compte rendu ». Ne pas confirmer un essai qui échoue. Si seule l’inversion verticale échoue, laisser cette capacité non validée : les compétences validées restent utilisables.
+**Arrêter entièrement le service** (stop the service completely) in Kishi Switch disables its accessibility service. The relay releases the Kishi and removes its virtual controller.
 
-Le profil HID de cette version est limité à la Kishi V2 Pro 1532:0717 et aux axes observés sur le OnePlus. Les mises à jour du jeu ou du système nécessitent de refaire les essais. Android et Shizuku peuvent conserver leurs propres indications système.
+After restarting your phone, start Shizuku again. If the connection is interrupted, use **Autoriser / reconnecter Shizuku** (authorize / reconnect Shizuku). A periodic connection check releases the Kishi if the app stops responding. The app sends no recurring notifications.
 
-## Licence et attribution
+If something fails, return to Kishi Switch and open **Afficher le compte rendu** (show report). Do not confirm a failed test. If only vertical inversion fails, leave it unvalidated: validated skills remapping remains usable.
 
-« Licences et attribution » sur l'écran principal donne accès hors ligne à la
-licence PolyForm Noncommercial 1.0.0, à l'attribution de Maugrey et aux licences
-des composants tiers. Les liens vers le code d'origine s'ouvrent dans le navigateur.
-La consultation des mentions n'active aucun relais et ne demande aucune permission.
+This version's HID profile is limited to the Kishi V2 Pro 1532:0717 and the axes observed on the OnePlus. Game and system updates require repeating the tests. Android and Shizuku may still show their own system indicators.
+
+## License and attribution
+
+**Licences et attribution** (licenses and attribution) on the main screen provides offline access to PolyForm Noncommercial 1.0.0, Maugrey's attribution and third-party licenses. Links to the original source open in your browser. Viewing these texts does not activate the relay or require any permission.

@@ -1,54 +1,67 @@
-# Compte rendu — version 0.1.3
+# Validation report — version 0.1.4
 
-## Livraison 0.1.3 — licence et attribution
+English | [Français](VALIDATION.fr.md)
 
-- Le moteur de remappage, le relais HID et le stockage des réglages sont inchangés par rapport à la 0.1.2.
-- Compilation signée réussie avec la même clé personnelle ; signature de l'APK vérifiée.
-- Les 17 tests du moteur restent réussis ; Gradle a réutilisé leurs résultats car leurs entrées n'ont pas changé.
-- Android Lint : aucune erreur, 17 avertissements existants.
-- Les neuf documents légaux de l'APK correspondent aux fichiers du dépôt ; les neuf entrées de l'interface pointent vers un document présent.
-- Le texte PolyForm Noncommercial 1.0.0 est identique au texte officiel ; deux lignes `Required Notice:` conservent l'attribution de Maugrey et le lien du dépôt.
-- Les métadonnées Git ne sont plus ajoutées à l'APK. Aucun e-mail personnel ni chemin de profil personnel n'a été détecté dans son contenu.
-- Aucun nouvel essai sur le OnePlus n'a été réalisé pour cette mise à jour de licence. Le fonctionnement en jeu confirmé ci-dessous concerne la 0.1.2.
+## Version 0.1.4 — English and French distribution documents
 
-## Historique des essais 0.1.2
+The README, user guide and validation report are available in English and French. Attribution explanations in NOTICE and THIRD_PARTY_NOTICES.md are bilingual, including the copies bundled in the APK. Official license texts and both Required Notice lines are unchanged. The app interface remains in French; the English user guide includes the corresponding French button labels.
 
-## Diagnostic confirmé le 11 septembre 2026
+- Signed release build completed; APK signature verified with the same certificate as 0.1.3.
+- All nine embedded legal documents match their repository files. Official license texts and the two Required Notice lines were checked against 0.1.3.
+- Local links in both sets of documents resolve correctly.
+- Android Lint: no errors, 17 existing warnings. Gradle reused the 17 successful engine test results; engine sources are unchanged.
+- No personal email, local username, private key or GitHub token was detected by the targeted scan of the APK and distribution documents. Git metadata remains excluded from the APK.
+- No application Kotlin code was changed. The app version was incremented to distribute the updated embedded notices; preferences and validation stamps are unchanged.
 
-La 0.1.1 capturait les mouvements puis les réinjectait avec l’identifiant Android virtuel -1. L’essai sur le OnePlus CPH2449 confirme ce changement d’identité, alors que Guild Wars reste focalisé et que les files d’entrée ne sont pas bloquées. Les commandes ne produisent pas d’action visible dans le jeu.
+No new test on the OnePlus has been performed for this documentation update. The user-confirmed gameplay results below concern version 0.1.2.
 
-Un prototype distinct a ensuite lu le périphérique physique de la Kishi, obtenu EVIOCGRAB sans root et retransmis les commandes par UHID. Android a enregistré cette manette avec un identifiant propre et lui a attribué aussi bien les mouvements que les boutons. **L’utilisateur a répondu « Tout fonctionne » après l’essai de 45 secondes dans Guild Wars.** Le prototype a compté 4 126 événements bruts et 1 613 rapports HID, puis libéré la Kishi automatiquement.
+## Version 0.1.3 — licensing and attribution
 
-Après installation de l’APK 0.1.2 et demande de vérifier successivement Transmission intacte, Compétences et Stick droit, l’utilisateur a confirmé : **« C’est bon, tout fonctionne ! »** La transmission et les deux inversions sont donc confirmées par l’utilisateur dans Guild Wars sur son OnePlus CPH2449, avec la Kishi V2 Pro et Shizuku sans root. Cette confirmation concerne désormais l’application intégrée.
+- Remapping engine, HID relay and settings storage unchanged from 0.1.2.
+- Signed build completed using the same personal key; APK signature verified.
+- All 17 engine tests remained successful; Gradle reused their results because their inputs had not changed.
+- Android Lint: no errors, 17 existing warnings.
+- All nine legal documents in the APK matched their repository files; all nine interface entries pointed to an included document.
+- PolyForm Noncommercial 1.0.0 matched the official text; two `Required Notice:` lines retained Maugrey's attribution and the repository link.
+- Git metadata was no longer added to the APK. No personal email or personal profile path was detected in its contents.
+- No new OnePlus test was performed for this license update.
 
-## Contrôles de la nouvelle version
+## Version 0.1.2 — device tests on September 11, 2026
 
-- Compilation personnelle signée 0.1.2 : réussie ; même clé que la version précédente.
-- Tests Kotlin : 17 réussis, dont cinq nouveaux tests du codage HID (huit combinaisons, boutons seuls, collisions de correspondances, ordre analogique/boutons simultanés, neutre/amplitude, autres axes, changements différés et répétitions).
-- Android Lint : aucune erreur.
-- Installation par-dessus 0.1.1 sur le OnePlus : réussie.
-- Essais Android instrumentés historiques : huit réussis en 0.1.1 sur émulateur ; ils n’ont pas été exécutés sur le téléphone personnel car ils effacent les préférences de test.
-- Essais de l’APK 0.1.2 dans Guild Wars : transmission intacte, inversion des compétences et inversion verticale du stick droit confirmées par l’utilisateur.
+Version 0.1.1 captured motions and reinjected them with Android's virtual device ID -1. Testing on the OnePlus CPH2449 confirmed this identity change while Guild Wars retained focus and input queues were not blocked. The controls produced no visible action in the game.
 
-## Écart d’architecture nécessaire
+A separate prototype then read the physical Kishi device, acquired EVIOCGRAB without root and forwarded controls through UHID. Android registered that controller with its own ID and assigned both motions and buttons to it. **The user confirmed that everything worked during a 45-second test in Guild Wars.** The prototype counted 4,126 raw events and 1,613 HID reports, then released the Kishi automatically.
 
-L’injection ciblée par UID avec InputManager n’est plus utilisée pour le jeu. Le UserService Shizuku lit le seul périphérique physique identifié, suspend sa transmission native par EVIOCGRAB et alimente une manette UHID. Les autres périphériques, notamment le clavier, ne sont pas capturés.
+After installing APK 0.1.2 and being asked to check passthrough, skills and the right stick in turn, **the user again confirmed that everything worked.** Passthrough and both inversions are therefore user-confirmed in the integrated application, in Guild Wars on the OnePlus CPH2449, with the Kishi V2 Pro and Shizuku without root.
 
-UHID passe par la distribution normale d’Android : il ne propose pas de cible UID par événement. Le contrôle de l’appelant Binder et du paquet autorisé reste en place ; l’accessibilité arrête le relais sur changement de fenêtre, apparition du clavier et verrouillage. Une liaison de durée limitée et la mort du client arrêtent également le relais. Le contrôle de connexion toutes les 250 ms ne surveille pas le premier plan par interrogation périodique.
+### Checks for version 0.1.2
 
-Les axes gardent le format natif sur 8 bits, ses amplitudes et sa précision. RZ est inversé par 255 moins sa valeur brute ; les deux valeurs centrales 127 et 128 restent dans la zone neutre Android. Un format expérimental sur 16 bits a été écarté après avoir constaté qu’Android lui ajoutait un filtrage de précision différent. Les changements d’un même rapport sont regroupés avant de décider la correspondance des boutons.
+- Personally signed build: successful, using the same key as the previous version.
+- Kotlin tests: 17 passed, including five new HID encoding tests covering the eight combinations, face buttons alone, mapping collisions, simultaneous analog/button ordering, neutral and full range, other axes, deferred changes and repetitions.
+- Android Lint: no errors.
+- Update installed over 0.1.1 on the OnePlus: successful.
+- Historical Android instrumentation tests: eight passed with 0.1.1 on an emulator. These tests were not run on the personal phone because they clear test preferences.
+- Gameplay with APK 0.1.2: passthrough, skills inversion and right stick vertical inversion confirmed by the user.
 
-M2 reste indisponible dans cette version ; utiliser les deux interrupteurs de l’overlay. Aucun échange global XYAB ni modification du client Guild Wars n’a été introduit.
+### Required architecture change
 
-## Vérifications complémentaires non détaillées dans ce retour
+UID-targeted InputManager injection is no longer used for the game. The Shizuku UserService reads only the identified physical controller, suspends its native delivery with EVIOCGRAB and feeds a UHID controller. Other devices, including the keyboard, are not captured.
 
-- Déplacement et caméra simultanés, appuis/relâchements dans différents ordres et petites amplitudes du stick droit.
-- Les quatre combinaisons d’interrupteurs, position de la pastille et changements différés.
-- Clavier habituel dans le jeu et une autre application.
-- Changement d’application, verrouillage, débranchement et arrêt de Shizuku.
-- Redémarrage du téléphone puis relance de Shizuku.
-- Session d’au moins vingt minutes sous OxygenOS.
+UHID uses Android's normal input dispatch, with no per-event UID target. Binder caller checks and the allowed package check remain in place. Accessibility stops the relay when the foreground window changes, the keyboard appears or the phone locks. A time-limited control lease and client death also stop the relay. The 250 ms connection check does not poll for the foreground app.
 
-Le retour global de fonctionnement ne fournit pas de résultats séparés pour ces scénarios ; ils ne sont pas présentés comme vérifiés individuellement.
+Axes retain their native 8-bit format, range and precision. RZ is inverted as 255 minus its raw value; both central values, 127 and 128, stay within Android's neutral zone. An experimental 16-bit format was discarded after Android applied different precision filtering. Changes within each report are grouped before choosing button mappings.
 
-Les journaux Android bruts et les APK du jeu utilisés en lecture seule pour le diagnostic restent locaux, exclus du dépôt et des archives distribuées.
+M2 remains unavailable in this version; use the two overlay switches. No global XYAB swapping or modification of the Guild Wars client was introduced.
+
+### Scenarios without individually recorded results
+
+- Simultaneous movement and camera control, different press/release orders, and small right stick deflections.
+- All four switch combinations, bubble position and deferred changes.
+- The usual keyboard in the game and another app.
+- Switching apps, locking, unplugging the controller and stopping Shizuku.
+- Restarting the phone and starting Shizuku again.
+- A session of at least twenty minutes under OxygenOS.
+
+The user's overall confirmation does not provide separate results for these scenarios; they are not presented as individually verified.
+
+Raw Android logs and game APKs used for read-only diagnosis remain local, excluded from the repository and distributed archives.

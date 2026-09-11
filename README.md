@@ -1,83 +1,76 @@
-# Kishi Switch pour Guild Wars
+# Kishi Switch for Guild Wars
 
-Application personnelle pour Android 16, écrite en Kotlin et Android Views. Elle utilise Shizuku, installé séparément, sans root ni remplacement du clavier.
+English | [Français](README.fr.md)
 
-**Version 0.1.3 : licence PolyForm Noncommercial et attributions accessibles dans l'application.** Le fonctionnement de la manette est celui de la 0.1.2 ; cette mise à jour ajoute les mentions légales aux distributions.
+A personal Android 16 controller utility built with Kotlin and Android Views. It uses Shizuku, installed separately, without root or replacing your keyboard.
 
-**Version 0.1.2 : transmission et deux inversions confirmées par l’utilisateur dans Guild Wars sur le OnePlus.** La réinjection Android de la 0.1.1 a été remplacée par un relais EVIOCGRAB/UHID via Shizuku sans root. Après les essais de l’application intégrée, l’utilisateur a confirmé : « C’est bon, tout fonctionne ! » Les essais guidés restent requis sur une nouvelle installation ou après un changement de configuration. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md) et le [compte rendu actuel](docs/VALIDATION.md).
+**Version 0.1.4 provides English and French documentation and bilingual attribution explanations inside the APK.** The app interface remains in French; the English user guide includes the corresponding French button labels.
 
-## Installation et utilisation
+**Controller passthrough and both inversions were confirmed by the user in Guild Wars on a OnePlus 11 with version 0.1.2.** Version 0.1.3 added licensing and attribution. Guided tests are still required on a new installation or after a configuration change. See the [validation report](docs/VALIDATION.md) and the [technical investigation (French)](docs/DIAGNOSTIC-TRANSMISSION.md).
 
-Télécharger l’APK signé dans les [releases](https://github.com/Maugrey/kishiswitch4gw/releases). La version 0.1.3 est une préversion.
+## Install and use
 
-Voir la [notice française](docs/NOTICE.md), puis le [compte rendu et les essais restants](docs/VALIDATION.md).
+Download the signed APK from [Releases](https://github.com/Maugrey/kishiswitch4gw/releases). This project is currently a prerelease.
 
-Le comportement programmé est A ↔ X et B ↔ Y pendant LT/RT, et l’inversion haut/bas du **stick droit** indépendamment des gâchettes. Les boutons seuls gardent leur rôle. Les deux préférences démarrent activées, mais ne deviennent effectives qu’après leur validation séparée. Le paquet `net.arena.guildwars.reforged` et les axes LT/RTRIGGER/RZ sont confirmés sur le OnePlus. Le relais cible le profil matériel Kishi V2 Pro 1532:0717 ; les commandes passent par l’overlay, M2 restant indisponible dans cette version.
+Read the [English user guide](docs/NOTICE.md) or the [French user guide](docs/NOTICE.fr.md), then check the [validation report and remaining tests](docs/VALIDATION.md).
 
-## Compiler sous Windows
+The app swaps A ↔ X and B ↔ Y while LT or RT is held, and independently inverts the **right stick's vertical axis**. Face buttons keep their usual behavior when no trigger is held. Both preferences start enabled, but each feature only becomes active after its guided test is confirmed. The game package `net.arena.guildwars.reforged` and axes `AXIS_LTRIGGER`, `AXIS_RTRIGGER` and `AXIS_RZ` were confirmed on the OnePlus. The relay currently supports the Kishi V2 Pro hardware profile 1532:0717. Use the floating controls; M2 is unavailable in this version.
 
-Versions fixées : Gradle Wrapper 8.13 (archive vérifiée par SHA-256), AGP 8.13.2, Kotlin 2.2.21, JDK 21 d’Android Studio, SDK 36 et Build Tools 36.1.0. `minSdk`, `compileSdk` et `targetSdk` valent 36.
+## Build on Windows
+
+Pinned versions: Gradle Wrapper 8.13 (download verified with SHA-256), AGP 8.13.2, Kotlin 2.2.21, Android Studio's JDK 21, SDK 36 and Build Tools 36.1.0. `minSdk`, `compileSdk` and `targetSdk` are all 36.
 
 ```powershell
-# APK de développement + tests du moteur + lint
-powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Check
+# Debug APK, engine tests and lint
+powershell -ExecutionPolicy Bypass -File ./scripts/build.ps1 -Check
 
-# APK personnel signé + contrôles
-powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Release -Check
+# Personally signed release APK and checks
+powershell -ExecutionPolicy Bypass -File ./scripts/build.ps1 -Release -Check
 
-# Depuis un clone Git sans changement en attente : réunir la livraison dans dist/
-powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
+# From a Git clone with all tracked changes committed: collect distribution files
+powershell -ExecutionPolicy Bypass -File ./scripts/package.ps1
 
-# Tests Android, avec UN émulateur/appareil de test connecté
-$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+# Android tests: use a disposable emulator; these tests clear app preferences
+$env:JAVA_HOME = 'C:/Program Files/Android/Android Studio/jbr'
 $env:ANDROID_SERIAL = 'emulator-5580'
-.\gradlew.bat :app:connectedDebugAndroidTest
+./gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-Les scripts acceptent `-Jdk` et `-Sdk` si les chemins diffèrent. Android Studio peut aussi ouvrir directement ce dossier. Pour compiler ailleurs, renseigner `ANDROID_HOME` ou un `local.properties` contenant `sdk.dir=...`, utiliser Java 21 et exécuter `./gradlew :engine:test :app:assembleDebug :app:lintDebug`.
+The build script accepts `-Jdk` and `-Sdk` when paths differ. Android Studio can also open this directory directly. On other platforms, set `ANDROID_HOME` or provide `sdk.dir=...` in `local.properties`, use Java 21 and run `./gradlew :engine:test :app:assembleDebug :app:lintDebug`.
 
-La première compilation signée crée la clé et ses propriétés **hors du dépôt**, dans `%LOCALAPPDATA%\KishiSwitch\signing`, avec des droits limités au compte Windows et à SYSTEM. Sauvegarder ce dossier en lieu sûr : la même clé est nécessaire pour installer les mises à jour sans désinstaller l’app. Les mots de passe ne sont pas affichés ni inclus dans les sources. Pour une clé existante, définir `KISHI_SIGNING_PROPERTIES` vers le fichier privé contenant `storeFile`, `storePassword`, `keyAlias` et `keyPassword`.
+The first signed build creates a signing key and its properties **outside the repository**, in `%LOCALAPPDATA%/KishiSwitch/signing`, with access limited to the Windows user and SYSTEM. Back up that directory securely: you need the same key to update your build without uninstalling the app. Passwords are neither printed nor included in the sources. To use an existing key, set `KISHI_SIGNING_PROPERTIES` to the private file containing `storeFile`, `storePassword`, `keyAlias` and `keyPassword`.
 
-Sorties Gradle : `app/build/outputs/apk/debug/app-debug.apk` et `app/build/outputs/apk/release/app-release.apk`. Le paquet de livraison est dans `dist/`. Les dépendances sont fixées ; les octets de l’APK peuvent varier avec l’environnement de compilation.
+Gradle outputs: `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/release/app-release.apk`. Distribution files are placed in `dist/`. Dependencies are pinned; APK bytes may still vary with the build environment.
 
-L'APK intègre automatiquement `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` et `licenses/` depuis la racine du projet. Les archives de livraison proviennent du commit Git courant : elles n'incluent pas les fichiers locaux non suivis. Un clone Git est nécessaire pour `package.ps1` ; la compilation reste possible depuis l'archive de sources.
+The APK automatically includes the root `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` and `licenses/`. Source archives come from the current Git commit and exclude untracked local files. `package.ps1` requires a Git clone; building is also possible from a source archive.
 
-## Licence et attribution
+## License and attribution
 
-Le code propre et la documentation de Kishi Switch sont disponibles sous
-**[PolyForm Noncommercial 1.0.0](LICENSE)**. La modification et la redistribution
-sont autorisées pour les usages prévus par cette licence, sans obligation de
-publier les sources modifiées. Les conditions détaillées, dont les usages
-expressément autorisés pour certains organismes, figurent dans le texte intégral.
+Kishi Switch's own code and documentation are available under **[PolyForm Noncommercial 1.0.0](LICENSE)**. Modification and redistribution are allowed for the uses permitted by that license, without a requirement to publish modified source code. See the full license for its terms, including uses expressly permitted for certain organizations.
 
-Lors d'une redistribution, conserver ces mentions, présentes dans [NOTICE](NOTICE),
-ainsi que la licence ou son URL :
+When redistributing the software, retain these lines from [NOTICE](NOTICE) and provide the license text or its URL:
 
 ```text
 Required Notice: Kishi Switch - Copyright (c) 2026 Maugrey.
 Required Notice: Original source: https://github.com/Maugrey/kishiswitch4gw
 ```
 
-Ce projet propose un code source disponible pour un usage non commercial ; il
-n'est pas présenté comme open source au sens de la définition de l'OSI.
-Les bibliothèques tierces conservent leurs propres licences, détaillées dans
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Dans l'application, ouvrir
-**« Licences et attribution »** pour consulter les textes et accéder au dépôt.
+This project makes its source available for noncommercial use; it is not described as open source under the OSI definition. Third-party libraries retain their own licenses, documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). In the app, open **Licences et attribution** to read the texts and access the repository. Official license texts remain in their original language; explanatory notices are provided in English and French.
 
-## Organisation
+## Project layout
 
-- `engine/` : machine à états et codage HID indépendants d’Android, seuil analogique avec hystérésis, correspondance figée entre appui et relâchement, changements différés au repos.
-- `app/.../input/` : accessibilité pour le premier plan, le clavier, le verrouillage et l’overlay ; aucune interception des commandes.
-- `app/.../bridge/` : AIDL interne, UserService Shizuku, lecture exclusive de la Kishi et transmission à une manette UHID ; contrôle de l’appelant et arrêt automatique sur perte de connexion.
-- `app/.../data/` : préférences, profil matériel et validations liées au profil, au seuil, à la version du jeu et au système.
-- `app/.../ui/` : écran principal, identification guidée, essais temporaires et overlay sans focus clavier.
+- `engine/`: Android-independent state machine and HID encoding, analog trigger hysteresis, mappings retained until button release, and setting changes deferred until controls return to rest.
+- `app/.../input/`: accessibility for foreground, keyboard and lock detection, plus the overlay; no interception of controller events.
+- `app/.../bridge/`: internal AIDL, Shizuku UserService, exclusive reading of the Kishi and forwarding to a UHID controller; caller checks and automatic shutdown on connection loss.
+- `app/.../data/`: preferences, hardware profile and validations tied to the profile, threshold, game version and system build.
+- `app/.../ui/`: main screen, guided identification, temporary tests and an overlay that does not take keyboard focus.
 
-Le service d’accessibilité consulte le paquet de la fenêtre applicative et la présence du clavier, sans lire le texte saisi. Pas de permission Internet, pas de serveur, compte, télémétrie, service de clavier ou notification propre à l’app. Le journal local borné ne contient que les étapes de diagnostic ; son partage exige une action explicite dans l’interface.
+The accessibility service checks the application window's package and whether the keyboard is visible, without reading typed text. There is no Internet permission, server, account, telemetry, input method service or app notification. The bounded local log only records diagnostic steps; sharing it requires an explicit action in the interface.
 
-## Limite technique déterminante
+## Technical limitations
 
-La capture par l’accessibilité et la réinjection InputManager ont échoué dans Guild Wars. Le nouveau relais lit le périphérique Linux identifié et crée une manette UHID reconnue par Android. Il dépend des permissions shell d’OxygenOS et du format matériel de cette Kishi. Une mise à jour système peut imposer une nouvelle validation.
+Accessibility capture followed by InputManager reinjection failed in Guild Wars. The replacement relay reads the identified Linux input device and creates a UHID controller recognized by Android. It depends on the device's shell permissions and this Kishi's hardware format. System updates may require a new validation.
 
-UHID ne permet pas de cibler un UID par événement : la distribution normale d’Android est utilisée. Le service d’accessibilité commande l’arrêt sur changement de fenêtre, saisie et verrouillage. La Kishi est également libérée sur erreur, mort du client ou expiration de la liaison de contrôle. Les essais expirent après trois minutes. Aucun échange global XYAB n’est utilisé comme remplacement.
+UHID uses Android's normal input dispatch and cannot target a UID per event. The accessibility service stops the relay when the foreground app changes, the keyboard appears or the phone locks. The Kishi is also released on error, client death or control connection timeout. Guided tests expire after three minutes. Global XYAB swapping is never used as a fallback.
 
-Références : [onMotionEvent et interception des sources](https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#onMotionEvent(android.view.MotionEvent)), [InputDispatcher Android 16](https://android.googlesource.com/platform/frameworks/native/+/refs/heads/android16-release/services/inputflinger/dispatcher/InputDispatcher.cpp), [Shizuku API](https://github.com/RikkaApps/Shizuku-API), [compatibilité AGP](https://developer.android.com/build/releases/agp-8-13-0-release-notes).
+References: [onMotionEvent and source interception](https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#onMotionEvent(android.view.MotionEvent)), [Android 16 InputDispatcher](https://android.googlesource.com/platform/frameworks/native/+/refs/heads/android16-release/services/inputflinger/dispatcher/InputDispatcher.cpp), [Shizuku API](https://github.com/RikkaApps/Shizuku-API), [AGP compatibility](https://developer.android.com/build/releases/agp-8-13-0-release-notes).
