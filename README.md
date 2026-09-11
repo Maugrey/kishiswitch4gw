@@ -2,11 +2,13 @@
 
 Application personnelle pour Android 16, écrite en Kotlin et Android Views. Elle utilise Shizuku, installé séparément, sans root ni remplacement du clavier.
 
+**Version 0.1.3 : licence PolyForm Noncommercial et attributions accessibles dans l'application.** Le fonctionnement de la manette est celui de la 0.1.2 ; cette mise à jour ajoute les mentions légales aux distributions.
+
 **Version 0.1.2 : transmission et deux inversions confirmées par l’utilisateur dans Guild Wars sur le OnePlus.** La réinjection Android de la 0.1.1 a été remplacée par un relais EVIOCGRAB/UHID via Shizuku sans root. Après les essais de l’application intégrée, l’utilisateur a confirmé : « C’est bon, tout fonctionne ! » Les essais guidés restent requis sur une nouvelle installation ou après un changement de configuration. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md) et le [compte rendu actuel](docs/VALIDATION.md).
 
 ## Installation et utilisation
 
-Télécharger l’APK personnel signé dans les [releases du dépôt privé](https://github.com/Maugrey/kishiswitch4gw/releases). La connexion au compte GitHub ayant accès au dépôt est nécessaire. La version 0.1.2 est une préversion avec nouveau transport.
+Télécharger l’APK signé dans les [releases](https://github.com/Maugrey/kishiswitch4gw/releases). La version 0.1.3 est une préversion.
 
 Voir la [notice française](docs/NOTICE.md), puis le [compte rendu et les essais restants](docs/VALIDATION.md).
 
@@ -23,7 +25,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Check
 # APK personnel signé + contrôles
 powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Release -Check
 
-# Réunir l’APK, les sources, la notice et les empreintes dans dist/
+# Depuis un clone Git sans changement en attente : réunir la livraison dans dist/
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 
 # Tests Android, avec UN émulateur/appareil de test connecté
@@ -37,6 +39,30 @@ Les scripts acceptent `-Jdk` et `-Sdk` si les chemins diffèrent. Android Studio
 La première compilation signée crée la clé et ses propriétés **hors du dépôt**, dans `%LOCALAPPDATA%\KishiSwitch\signing`, avec des droits limités au compte Windows et à SYSTEM. Sauvegarder ce dossier en lieu sûr : la même clé est nécessaire pour installer les mises à jour sans désinstaller l’app. Les mots de passe ne sont pas affichés ni inclus dans les sources. Pour une clé existante, définir `KISHI_SIGNING_PROPERTIES` vers le fichier privé contenant `storeFile`, `storePassword`, `keyAlias` et `keyPassword`.
 
 Sorties Gradle : `app/build/outputs/apk/debug/app-debug.apk` et `app/build/outputs/apk/release/app-release.apk`. Le paquet de livraison est dans `dist/`. Les dépendances sont fixées ; les octets de l’APK peuvent varier avec l’environnement de compilation.
+
+L'APK intègre automatiquement `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` et `licenses/` depuis la racine du projet. Les archives de livraison proviennent du commit Git courant : elles n'incluent pas les fichiers locaux non suivis. Un clone Git est nécessaire pour `package.ps1` ; la compilation reste possible depuis l'archive de sources.
+
+## Licence et attribution
+
+Le code propre et la documentation de Kishi Switch sont disponibles sous
+**[PolyForm Noncommercial 1.0.0](LICENSE)**. La modification et la redistribution
+sont autorisées pour les usages prévus par cette licence, sans obligation de
+publier les sources modifiées. Les conditions détaillées, dont les usages
+expressément autorisés pour certains organismes, figurent dans le texte intégral.
+
+Lors d'une redistribution, conserver ces mentions, présentes dans [NOTICE](NOTICE),
+ainsi que la licence ou son URL :
+
+```text
+Required Notice: Kishi Switch - Copyright (c) 2026 Maugrey.
+Required Notice: Original source: https://github.com/Maugrey/kishiswitch4gw
+```
+
+Ce projet propose un code source disponible pour un usage non commercial ; il
+n'est pas présenté comme open source au sens de la définition de l'OSI.
+Les bibliothèques tierces conservent leurs propres licences, détaillées dans
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Dans l'application, ouvrir
+**« Licences et attribution »** pour consulter les textes et accéder au dépôt.
 
 ## Organisation
 

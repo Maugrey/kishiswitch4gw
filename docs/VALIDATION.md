@@ -1,4 +1,17 @@
-# Compte rendu — version 0.1.2
+# Compte rendu — version 0.1.3
+
+## Livraison 0.1.3 — licence et attribution
+
+- Le moteur de remappage, le relais HID et le stockage des réglages sont inchangés par rapport à la 0.1.2.
+- Compilation signée réussie avec la même clé personnelle ; signature de l'APK vérifiée.
+- Les 17 tests du moteur restent réussis ; Gradle a réutilisé leurs résultats car leurs entrées n'ont pas changé.
+- Android Lint : aucune erreur, 17 avertissements existants.
+- Les neuf documents légaux de l'APK correspondent aux fichiers du dépôt ; les neuf entrées de l'interface pointent vers un document présent.
+- Le texte PolyForm Noncommercial 1.0.0 est identique au texte officiel ; deux lignes `Required Notice:` conservent l'attribution de Maugrey et le lien du dépôt.
+- Les métadonnées Git ne sont plus ajoutées à l'APK. Aucun e-mail personnel ni chemin de profil personnel n'a été détecté dans son contenu.
+- Aucun nouvel essai sur le OnePlus n'a été réalisé pour cette mise à jour de licence. Le fonctionnement en jeu confirmé ci-dessous concerne la 0.1.2.
+
+## Historique des essais 0.1.2
 
 ## Diagnostic confirmé le 11 septembre 2026
 

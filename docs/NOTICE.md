@@ -1,12 +1,12 @@
-# Notice — Kishi Switch 0.1.2
+# Notice — Kishi Switch 0.1.3
 
 ## Installation ou mise à jour
 
-Installer `KishiSwitch-0.1.2.apk` par-dessus la version précédente, sans désinstaller l’app. Le profil matériel et les deux préférences restent mémorisés. Les validations précédentes sont remises à zéro car le transport a changé.
+Installer `KishiSwitch-0.1.3.apk` par-dessus la version précédente, sans désinstaller l’app. Le profil matériel et les deux préférences restent mémorisés. Une mise à jour depuis la 0.1.2 conserve également les validations. En venant de la 0.1.1, les essais doivent être refaits car le transport a changé.
 
 Shizuku doit être démarré et Kishi Switch autorisé dans Shizuku. Activer ensuite « Kishi Switch — manette » dans les paramètres d’accessibilité. Le [guide Shizuku](https://shizuku.rikka.app/guide/setup/) explique le démarrage sans root par débogage sans fil.
 
-La version 0.1.2 utilise un relais de manette HID : l’accessibilité sert à reconnaître la fenêtre du jeu, le clavier et à afficher la pastille. Elle n’intercepte plus les boutons ni les mouvements.
+Depuis la version 0.1.2, l'application utilise un relais de manette HID : l’accessibilité sert à reconnaître la fenêtre du jeu, le clavier et à afficher la pastille. Elle n’intercepte plus les boutons ni les mouvements. La 0.1.3 ajoute la licence et les attributions ; elle conserve ce transport.
 
 ## Vérifier les inversions
 
@@ -37,3 +37,10 @@ Après un redémarrage du téléphone, relancer Shizuku. Si la connexion est int
 En cas de problème, revenir dans Kishi Switch et consulter « Afficher le compte rendu ». Ne pas confirmer un essai qui échoue. Si seule l’inversion verticale échoue, laisser cette capacité non validée : les compétences validées restent utilisables.
 
 Le profil HID de cette version est limité à la Kishi V2 Pro 1532:0717 et aux axes observés sur le OnePlus. Les mises à jour du jeu ou du système nécessitent de refaire les essais. Android et Shizuku peuvent conserver leurs propres indications système.
+
+## Licence et attribution
+
+« Licences et attribution » sur l'écran principal donne accès hors ligne à la
+licence PolyForm Noncommercial 1.0.0, à l'attribution de Maugrey et aux licences
+des composants tiers. Les liens vers le code d'origine s'ouvrent dans le navigateur.
+La consultation des mentions n'active aucun relais et ne demande aucune permission.

@@ -7,6 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
+import android.widget.ScrollView
 import android.widget.Toast
 import fr.kishiswitch.guildwars.BuildConfig
 import fr.kishiswitch.guildwars.KishiApplication
@@ -67,7 +70,38 @@ class MainActivity : Activity() {
                 .setMessage("Dans Guild Wars, touchez la petite pastille GW pour ouvrir les deux interrupteurs. Déplacez-la en la faisant glisser. Les réglages attendent le relâchement des commandes.\n\nPour tout arrêter, désactivez les deux inversions ou le service d’accessibilité. Votre clavier n’est jamais remplacé.\n\nL’app n’émet pas de notifications récurrentes. Android et Shizuku peuvent afficher leurs propres indications.\n\nLes mises à jour du jeu ou d’OxygenOS nécessitent de refaire les essais.")
                 .setPositiveButton("Fermer", null).show()
         }
-        screen.paragraph("Version ${BuildConfig.VERSION_NAME} · usage personnel", Ui.muted)
+        screen.action("Licences et attribution") { showLegalIndex() }
+        screen.paragraph("Version ${BuildConfig.VERSION_NAME} · PolyForm Noncommercial", Ui.muted)
+    }
+
+    private fun showLegalIndex() {
+        val documents = listOf(
+            "Attribution et code d’origine" to "legal/NOTICE",
+            "Licence de Kishi Switch · PolyForm Noncommercial" to "legal/LICENSE",
+            "Attributions des composants tiers" to "legal/THIRD_PARTY_NOTICES.md",
+            "Shizuku API · MIT" to "legal/licenses/Shizuku-API-MIT.txt",
+            "Apache 2.0" to "legal/licenses/Apache-2.0.txt",
+            "Kotlin · GWT" to "legal/licenses/Kotlin-gwt_license.txt",
+            "Kotlin · Guava" to "legal/licenses/Kotlin-guava_license.txt",
+            "Kotlin · Boost" to "legal/licenses/Kotlin-boost_LICENSE.txt",
+            "Kotlin · ThreeTenBP" to "legal/licenses/Kotlin-threetenbp_license.txt"
+        )
+        AlertDialog.Builder(this).setTitle("Licences et attribution")
+            .setItems(documents.map { it.first }.toTypedArray()) { _, index ->
+                val (title, path) = documents[index]
+                val content = assets.open(path).bufferedReader(Charsets.UTF_8).use { it.readText() }
+                val text = Ui.text(this, content, 14f).apply {
+                    setTextIsSelectable(true)
+                    Linkify.addLinks(this, Linkify.WEB_URLS)
+                    movementMethod = LinkMovementMethod.getInstance()
+                    val padding = Ui.dp(context, 20)
+                    setPadding(padding, padding, padding, padding)
+                }
+                val scroll = ScrollView(this).apply { addView(text) }
+                AlertDialog.Builder(this).setTitle(title).setView(scroll)
+                    .setPositiveButton("Fermer", null).show()
+            }
+            .setNegativeButton("Fermer", null).show()
     }
 
     private fun launchGame() {

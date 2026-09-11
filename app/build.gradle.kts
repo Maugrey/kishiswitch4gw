@@ -10,6 +10,14 @@ val privateSigning = Properties().apply {
     if (privateSigningFile?.isFile == true) privateSigningFile.inputStream().use { load(it) }
 }
 
+val legalAssets = tasks.register<Sync>("prepareLegalAssets") {
+    from(listOf(rootProject.file("LICENSE"), rootProject.file("NOTICE"), rootProject.file("THIRD_PARTY_NOTICES.md"))) {
+        into("legal")
+    }
+    from(rootProject.file("licenses")) { into("legal/licenses") }
+    into(layout.buildDirectory.dir("generated/legalAssets"))
+}
+
 android {
     namespace = "fr.kishiswitch.guildwars"
     compileSdk = 36
@@ -18,8 +26,8 @@ android {
         applicationId = "fr.kishiswitch.guildwars"
         minSdk = 36
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.1.2"
+        versionCode = 4
+        versionName = "0.1.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -33,10 +41,12 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            vcsInfo.include = false
             if (privateSigning.isNotEmpty()) signingConfig = signingConfigs.getByName("personal")
         }
     }
     buildFeatures { aidl = true; buildConfig = true }
+    sourceSets.getByName("main").assets.srcDir(layout.buildDirectory.dir("generated/legalAssets"))
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
@@ -44,6 +54,8 @@ android {
     kotlinOptions { jvmTarget = "21" }
     lint { abortOnError = true }
 }
+
+tasks.named("preBuild") { dependsOn(legalAssets) }
 
 dependencies {
     implementation(project(":engine"))

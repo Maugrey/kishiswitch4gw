@@ -6,5 +6,11 @@ local.properties
 *.jks
 *.keystore
 signing.properties
+.env
+.env.*
+*.pem
+*.p12
+*.pfx
+*.key
 dist/
 artifacts/
