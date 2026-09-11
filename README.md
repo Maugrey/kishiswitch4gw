@@ -2,7 +2,7 @@
 
 Application personnelle pour Android 16, écrite en Kotlin et Android Views. Elle utilise Shizuku, installé séparément, sans root ni remplacement du clavier.
 
-**Version 0.1.2 : nouveau relais de manette HID.** La réinjection Android de la 0.1.1 ne fonctionnait pas dans Guild Wars. Un prototype utilisant EVIOCGRAB et UHID via l’identité shell a ensuite retransmis les sticks et les boutons correctement sur le OnePlus, résultat confirmé par l’utilisateur. Ce mécanisme est intégré à la 0.1.2 ; les inversions restent soumises aux essais guidés dans le jeu. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md) et le [compte rendu actuel](docs/VALIDATION.md).
+**Version 0.1.2 : transmission et deux inversions confirmées par l’utilisateur dans Guild Wars sur le OnePlus.** La réinjection Android de la 0.1.1 a été remplacée par un relais EVIOCGRAB/UHID via Shizuku sans root. Après les essais de l’application intégrée, l’utilisateur a confirmé : « C’est bon, tout fonctionne ! » Les essais guidés restent requis sur une nouvelle installation ou après un changement de configuration. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md) et le [compte rendu actuel](docs/VALIDATION.md).
 
 ## Installation et utilisation
 

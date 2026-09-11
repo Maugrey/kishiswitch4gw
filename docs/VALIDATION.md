@@ -6,7 +6,7 @@ La 0.1.1 capturait les mouvements puis les réinjectait avec l’identifiant And
 
 Un prototype distinct a ensuite lu le périphérique physique de la Kishi, obtenu EVIOCGRAB sans root et retransmis les commandes par UHID. Android a enregistré cette manette avec un identifiant propre et lui a attribué aussi bien les mouvements que les boutons. **L’utilisateur a répondu « Tout fonctionne » après l’essai de 45 secondes dans Guild Wars.** Le prototype a compté 4 126 événements bruts et 1 613 rapports HID, puis libéré la Kishi automatiquement.
 
-Cette réussite valide le principe du nouveau transport. Elle ne certifie pas à elle seule toutes les fonctions de l’APK intégré.
+Après installation de l’APK 0.1.2 et demande de vérifier successivement Transmission intacte, Compétences et Stick droit, l’utilisateur a confirmé : **« C’est bon, tout fonctionne ! »** La transmission et les deux inversions sont donc confirmées par l’utilisateur dans Guild Wars sur son OnePlus CPH2449, avec la Kishi V2 Pro et Shizuku sans root. Cette confirmation concerne désormais l’application intégrée.
 
 ## Contrôles de la nouvelle version
 
@@ -15,7 +15,7 @@ Cette réussite valide le principe du nouveau transport. Elle ne certifie pas à
 - Android Lint : aucune erreur.
 - Installation par-dessus 0.1.1 sur le OnePlus : réussie.
 - Essais Android instrumentés historiques : huit réussis en 0.1.1 sur émulateur ; ils n’ont pas été exécutés sur le téléphone personnel car ils effacent les préférences de test.
-- Essais de l’APK 0.1.2 dans Guild Wars : en cours de validation.
+- Essais de l’APK 0.1.2 dans Guild Wars : transmission intacte, inversion des compétences et inversion verticale du stick droit confirmées par l’utilisateur.
 
 ## Écart d’architecture nécessaire
 
@@ -27,15 +27,15 @@ Les axes gardent le format natif sur 8 bits, ses amplitudes et sa précision. RZ
 
 M2 reste indisponible dans cette version ; utiliser les deux interrupteurs de l’overlay. Aucun échange global XYAB ni modification du client Guild Wars n’a été introduit.
 
-## Essais restant à confirmer sur le téléphone
+## Vérifications complémentaires non détaillées dans ce retour
 
-- Transmission intacte avec l’APK intégré, déplacement et caméra simultanés.
-- Les huit compétences et les appuis/relâchements dans différents ordres.
-- Stick droit vertical aux petites et grandes amplitudes.
+- Déplacement et caméra simultanés, appuis/relâchements dans différents ordres et petites amplitudes du stick droit.
 - Les quatre combinaisons d’interrupteurs, position de la pastille et changements différés.
 - Clavier habituel dans le jeu et une autre application.
 - Changement d’application, verrouillage, débranchement et arrêt de Shizuku.
 - Redémarrage du téléphone puis relance de Shizuku.
 - Session d’au moins vingt minutes sous OxygenOS.
+
+Le retour global de fonctionnement ne fournit pas de résultats séparés pour ces scénarios ; ils ne sont pas présentés comme vérifiés individuellement.
 
 Les journaux Android bruts et les APK du jeu utilisés en lecture seule pour le diagnostic restent locaux, exclus du dépôt et des archives distribuées.
