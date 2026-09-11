@@ -2,7 +2,7 @@
 
 Application personnelle pour Android 16, écrite en Kotlin et Android Views. Elle utilise Shizuku, installé séparément, sans root ni remplacement du clavier.
 
-**Version 0.1.1 : correction du filtrage permanent des boutons et du nettoyage de l’interception. Compatibilité réelle OnePlus 11 + Kishi + Guild Wars encore à valider.** Selon le dernier constat de l’utilisateur, toutes les commandes se bloquent pendant « Transmission intacte » et reviennent à l’expiration des trois minutes. Le simple lancement de Kishi Switch n’est pas le déclencheur. La version concernée par cette précision reste à confirmer ; le diagnostic se concentre sur la capture et la retransmission pendant l’essai. Aucun téléphone physique n’est connecté à l’environnement de développement. Les inversions restent verrouillées jusqu’aux essais guidés dans le jeu.
+**Version 0.1.1 : le blocage pendant « Transmission intacte » persiste dans Guild Wars sur le OnePlus.** Le compte rendu confirme 1 117 mouvements capturés et 1 117 injections acceptées par Android, sans filtrage des boutons ni erreur Shizuku. Les commandes reviennent à l’arrêt de l’essai. Un test complet sur émulateur confirme que les mouvements injectés reçoivent l’identifiant virtuel `-1`, tandis que les boutons restent associés à la manette ; la réception fonctionne dans notre récepteur de test. Voir le [diagnostic détaillé](docs/DIAGNOSTIC-TRANSMISSION.md). Les inversions restent verrouillées jusqu’à validation dans le jeu.
 
 ## Installation et utilisation
 

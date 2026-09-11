@@ -4,7 +4,7 @@
 
 ## Retours du téléphone
 
-L’utilisateur a identifié le vertical du stick droit comme `AXIS_RZ` et LT comme `AXIS_LTRIGGER`. Pendant « Transmission intacte », toutes les commandes du jeu, boutons compris, se bloquent. Il a ensuite précisé que le blocage dépend de l’essai, et non du simple lancement de Kishi Switch : les commandes reviennent automatiquement à l’expiration des trois minutes. Ce constat remplace l’hypothèse initiale d’un blocage persistant hors essai. La retransmission dans le jeu est donc **en échec**, tandis que l’arrêt temporisé rétablit les commandes natives. La version concernée par cette dernière observation (0.1.0 ou 0.1.1) reste à confirmer. Aucun compte rendu technique de cet essai n’a encore été reçu.
+L’utilisateur a confirmé le même échec en **0.1.1** et fourni le compte rendu : 1 117 mouvements capturés, 1 117 injections acceptées par Android, aucun filtrage des boutons et aucun échec technique. LT = `AXIS_LTRIGGER`, RT = `AXIS_RTRIGGER`, vertical droit = `AXIS_RZ`. Toutes les commandes du jeu se bloquent pendant l’essai et reviennent à son arrêt. La réception locale par Shizuku fonctionne. Le [diagnostic détaillé](DIAGNOSTIC-TRANSMISSION.md) distingue ces observations du test supplémentaire sur émulateur, qui confirme le changement d’identité des mouvements injectés sans reproduire le blocage des boutons dans notre récepteur.
 
 ## Correction 0.1.1
 
